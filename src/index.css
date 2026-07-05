@@ -1,0 +1,200 @@
+@import url('https://fonts.googleapis.com/css2?family=Urbanist:ital,wght@0,300;0,400;0,500;0,600;0,700;0,800;0,900;1,400&family=JetBrains+Mono:wght@400;500&display=swap');
+@import "tailwindcss";
+
+@theme {
+  --font-sans: "Urbanist", ui-sans-serif, system-ui, sans-serif;
+  --font-mono: "JetBrains Mono", ui-monospace, SFMono-Regular, monospace;
+}
+
+/* ============================================================
+   GLOBAL BASE
+   ============================================================ */
+@layer base {
+  html {
+    scroll-behavior: smooth;
+  }
+  body {
+    background-color: #ffffff;
+    color: #18181b;
+    font-family: "Urbanist", sans-serif;
+    -webkit-font-smoothing: antialiased;
+    font-size: 16px;
+  }
+}
+
+/* ============================================================
+   BACKGROUND PATTERNS
+   ============================================================ */
+.bg-pattern-maze {
+  background-color: #ffffff;
+  background-image: url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' width='60' height='60'%3E%3Cpath fill='none' stroke='%23f4f4f5' stroke-width='1.5' d='M0 15h15v-15M15 0v15h15M30 0v15h15M45 0v15h15M60 15h-15v15M60 30h-15v15M60 45h-15v15M45 60v-15h-15M30 60v-15h-15M15 60v-15h-15M0 45h15v15M0 30h15v-15'/%3E%3C/svg%3E");
+}
+
+.bg-pattern-maze-dark {
+  background-color: transparent;
+  background-image: url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' width='60' height='60'%3E%3Cpath fill='none' stroke='%2327272a' stroke-width='1.5' d='M0 15h15v-15M15 0v15h15M30 0v15h15M45 0v15h15M60 15h-15v15M60 30h-15v15M60 45h-15v15M45 60v-15h-15M30 60v-15h-15M15 60v-15h-15M0 45h15v15M0 30h15v-15'/%3E%3C/svg%3E");
+}
+
+.bg-pattern-dots {
+  background-color: #ffffff;
+  background-image: radial-gradient(circle, #e4e4e7 1.3px, transparent 1.3px);
+  background-size: 22px 22px;
+}
+
+.bg-pattern-lines {
+  background-color: #ffffff;
+  background-image: repeating-linear-gradient(
+    -45deg,
+    transparent,
+    transparent 10px,
+    #f4f4f5 10px,
+    #f4f4f5 11px
+  );
+}
+
+.bg-pattern-grid {
+  background-color: #ffffff;
+  background-image:
+    linear-gradient(#f4f4f5 1px, transparent 1px),
+    linear-gradient(90deg, #f4f4f5 1px, transparent 1px);
+  background-size: 32px 32px;
+}
+
+.bg-pattern-hero {
+  background-color: #ffffff;
+  background-image: url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' width='60' height='60'%3E%3Cpath fill='none' stroke='%23e4e4e7' stroke-width='1' d='M0 15h15v-15M15 0v15h15M30 0v15h15M45 0v15h15M60 15h-15v15M60 30h-15v15M60 45h-15v15M45 60v-15h-15M30 60v-15h-15M15 60v-15h-15M0 45h15v15M0 30h15v-15'/%3E%3C/svg%3E");
+}
+
+/* ============================================================
+   GLASSMORPHISM & CLEAN CARDS
+   ============================================================ */
+.glass {
+  background: rgba(255, 255, 255, 0.92);
+  backdrop-filter: blur(12px);
+  -webkit-backdrop-filter: blur(12px);
+  border: 1px solid #e4e4e7;
+}
+
+.glass-card {
+  background: #ffffff;
+  border: 1px solid #e4e4e7;
+  border-radius: 0.375rem !important;
+}
+
+/* ============================================================
+   CARD LIFT EFFECT
+   ============================================================ */
+.card-lift {
+  transition: transform 0.22s ease, box-shadow 0.22s ease;
+  border-radius: 0.375rem !important;
+}
+.card-lift:hover {
+  transform: translateY(-5px);
+  box-shadow: 0 12px 28px rgba(0, 0, 0, 0.07);
+}
+
+/* ============================================================
+   ANIMATIONS
+   ============================================================ */
+@keyframes fadeInUp {
+  from { opacity: 0; transform: translateY(20px); }
+  to   { opacity: 1; transform: translateY(0); }
+}
+
+@keyframes fadeInLeft {
+  from { opacity: 0; transform: translateX(-20px); }
+  to   { opacity: 1; transform: translateX(0); }
+}
+
+@keyframes fadeInRight {
+  from { opacity: 0; transform: translateX(20px); }
+  to   { opacity: 1; transform: translateX(0); }
+}
+
+@keyframes slideDown {
+  from { opacity: 0; transform: translateY(-10px); }
+  to   { opacity: 1; transform: translateY(0); }
+}
+
+.animate-fade-up        { animation: fadeInUp 0.5s ease forwards; }
+.animate-fade-left      { animation: fadeInLeft 0.5s ease forwards; }
+.animate-fade-right     { animation: fadeInRight 0.5s ease forwards; }
+.animate-slide-down     { animation: slideDown 0.3s ease forwards; }
+
+/* ============================================================
+   SCROLLBAR
+   ============================================================ */
+.custom-scrollbar::-webkit-scrollbar { width: 5px; height: 5px; }
+.custom-scrollbar::-webkit-scrollbar-track { background: transparent; }
+.custom-scrollbar::-webkit-scrollbar-thumb { background: #e4e4e7; border-radius: 999px; }
+.custom-scrollbar::-webkit-scrollbar-thumb:hover { background: #d4d4d8; }
+
+/* ============================================================
+   BUTTON STYLES — Urbanist, rounded-md, no gradients
+   ============================================================ */
+.btn-primary {
+  display: inline-flex;
+  align-items: center;
+  gap: 9px;
+  padding: 13px 26px;
+  background-color: #18181b;
+  color: #ffffff;
+  font-family: "Urbanist", sans-serif;
+  font-weight: 700;
+  font-size: 15px;
+  border-radius: 0.375rem !important;
+  border: 1.5px solid #18181b;
+  cursor: pointer;
+  transition: background-color 0.18s ease, transform 0.1s ease, box-shadow 0.18s ease;
+  letter-spacing: 0.01em;
+}
+.btn-primary:hover {
+  background-color: #27272a;
+  border-color: #27272a;
+  box-shadow: 0 4px 12px rgba(24, 24, 27, 0.2);
+}
+.btn-primary:active {
+  transform: translateY(1px);
+}
+
+.btn-outline {
+  display: inline-flex;
+  align-items: center;
+  gap: 9px;
+  padding: 13px 26px;
+  background-color: transparent;
+  color: #18181b;
+  font-family: "Urbanist", sans-serif;
+  font-weight: 700;
+  font-size: 15px;
+  border-radius: 0.375rem !important;
+  border: 1.5px solid #18181b;
+  cursor: pointer;
+  transition: background-color 0.18s ease, color 0.18s ease, transform 0.1s ease;
+  letter-spacing: 0.01em;
+}
+.btn-outline:hover {
+  background-color: #18181b;
+  color: #ffffff;
+}
+.btn-outline:active {
+  transform: translateY(1px);
+}
+
+/* ============================================================
+   NAV ACTIVE UNDERLINE
+   ============================================================ */
+.nav-active-pill {
+  position: relative;
+}
+.nav-active-pill::after {
+  content: '';
+  position: absolute;
+  bottom: -2px;
+  left: 50%;
+  transform: translateX(-50%);
+  width: 18px;
+  height: 2px;
+  background: #18181b;
+  border-radius: 999px;
+}

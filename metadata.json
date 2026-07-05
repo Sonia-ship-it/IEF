@@ -1,0 +1,6 @@
+{
+  "name": "IE & F Shop",
+  "description": "Ian Electronics & Fashion Shop - Premium online store and professional technical installation services platform.",
+  "requestFramePermissions": [],
+  "majorCapabilities": ["MAJOR_CAPABILITY_SERVER_SIDE_GEMINI_API"]
+}
