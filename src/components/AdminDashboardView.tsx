@@ -17,7 +17,15 @@ import {
   DollarSign, 
   Clock, 
   CheckCircle2,
-  X
+  X,
+  LayoutDashboard,
+  Settings,
+  LogOut,
+  ChevronLeft,
+  ChevronRight,
+  Package,
+  BarChart3,
+  Menu
 } from 'lucide-react';
 import { Product, Service, Order, User } from '../types';
 
@@ -48,7 +56,9 @@ export default function AdminDashboardView({
   onUpdateOrderStatus,
   setView
 }: AdminDashboardViewProps) {
-  const [activeSubTab, setActiveSubTab] = useState<'products' | 'services' | 'orders' | 'users'>('orders');
+  const [activeSubTab, setActiveSubTab] = useState<'dashboard' | 'products' | 'services' | 'orders' | 'users' | 'settings'>('dashboard');
+  const [sidebarCollapsed, setSidebarCollapsed] = useState(false);
+  const [mobileSidebarOpen, setMobileSidebarOpen] = useState(false);
 
   // Product Edit/Add form states
   const [editingProductId, setEditingProductId] = useState<string | null>(null);
@@ -77,6 +87,7 @@ export default function AdminDashboardView({
 
   const pendingOrdersCount = orders.filter(o => o.status === 'Pending').length;
   const completedOrdersCount = orders.filter(o => o.status === 'Completed').length;
+  const shippedOrdersCount = orders.filter(o => o.status === 'Shipped').length;
 
   // --- PRODUCTS FORM CRUD LOGIC ---
   const handleEditProduct = (p: Product) => {
@@ -179,564 +190,771 @@ export default function AdminDashboardView({
     setSrvImage('');
   };
 
-  return (
-    <div className="mx-auto max-w-7xl px-4 py-8 sm:px-6 lg:px-8 font-sans text-zinc-800 dark:text-zinc-200" id="admin-dashboard-view">
-      
-      {/* Intro Dashboard Header */}
-      <div className="flex flex-col md:flex-row md:items-center md:justify-between border-b border-zinc-200/85 dark:border-zinc-800 pb-6 mb-8 gap-4">
-        <div>
-          <h1 className="text-3xl font-extrabold tracking-tight text-zinc-950 dark:text-white uppercase">
-            Administrative Control Panel
-          </h1>
-          <p className="mt-1.5 text-xs text-zinc-500">
-            Secure store statistics, orders verification, and product catalog management database.
-          </p>
+  const sidebarItems = [
+    { id: 'dashboard', label: 'Dashboard', icon: LayoutDashboard },
+    { id: 'orders', label: 'Order Management', icon: FileText },
+    { id: 'products', label: 'Product Catalog', icon: ShoppingBag },
+    { id: 'services', label: 'Service Management', icon: Wrench },
+    { id: 'users', label: 'Customers', icon: Users },
+    { id: 'settings', label: 'Settings', icon: Settings },
+  ];
+
+  /* ================================================================
+     SIDEBAR COMPONENT (shared between desktop & mobile)
+     ================================================================ */
+  const SidebarContent = ({ isMobile = false }: { isMobile?: boolean }) => (
+    <div className="flex flex-col h-full">
+      {/* Sidebar Header */}
+      <div className={`flex items-center gap-3 px-5 py-6 border-b border-zinc-800 ${sidebarCollapsed && !isMobile ? 'justify-center px-3' : ''}`}>
+        <div className="flex h-9 w-9 items-center justify-center rounded-lg bg-zinc-800 text-white shrink-0">
+          <LayoutDashboard className="h-5 w-5" />
         </div>
-        <div className="rounded-xl bg-orange-600 px-4 py-2 text-xs font-bold text-white uppercase tracking-wider block w-fit">
-          Logged in as Store Admin
-        </div>
+        {(!sidebarCollapsed || isMobile) && (
+          <div className="min-w-0">
+            <span className="block text-sm font-extrabold text-white tracking-tight truncate">IE &amp; F Admin</span>
+            <span className="block text-[10px] text-zinc-500 font-medium">Control Panel</span>
+          </div>
+        )}
       </div>
 
-      {/* --- STATS SUMMARY BAR --- */}
-      <section className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-4 gap-6 mb-10" id="admin-stats">
-        {/* Total Sales */}
-        <div className="rounded-2xl border border-zinc-200 bg-white p-5 dark:border-zinc-800 dark:bg-zinc-900 flex items-center justify-between shadow-sm">
-          <div>
-            <span className="text-xs font-bold text-zinc-400 uppercase tracking-wider block">Total Store Sales</span>
-            <span className="text-2xl font-black text-zinc-900 dark:text-white mt-1.5 block">${totalSales.toFixed(2)}</span>
-          </div>
-          <div className="rounded-xl bg-emerald-500/10 p-3 text-emerald-600">
-            <DollarSign className="h-6 w-6" />
-          </div>
-        </div>
-
-        {/* Pending Invoices */}
-        <div className="rounded-2xl border border-zinc-200 bg-white p-5 dark:border-zinc-800 dark:bg-zinc-900 flex items-center justify-between shadow-sm">
-          <div>
-            <span className="text-xs font-bold text-zinc-400 uppercase tracking-wider block">Pending Orders</span>
-            <span className="text-2xl font-black text-zinc-900 dark:text-white mt-1.5 block">{pendingOrdersCount}</span>
-          </div>
-          <div className="rounded-xl bg-amber-500/10 p-3 text-amber-500">
-            <Clock className="h-6 w-6 animate-pulse" />
-          </div>
-        </div>
-
-        {/* Completed Dispatches */}
-        <div className="rounded-2xl border border-zinc-200 bg-white p-5 dark:border-zinc-800 dark:bg-zinc-900 flex items-center justify-between shadow-sm">
-          <div>
-            <span className="text-xs font-bold text-zinc-400 uppercase tracking-wider block">Completed Delivery</span>
-            <span className="text-2xl font-black text-zinc-900 dark:text-white mt-1.5 block">{completedOrdersCount}</span>
-          </div>
-          <div className="rounded-xl bg-orange-500/10 p-3 text-orange-600">
-            <CheckCircle2 className="h-6 w-6" />
-          </div>
-        </div>
-
-        {/* Total Registered Products */}
-        <div className="rounded-2xl border border-zinc-200 bg-white p-5 dark:border-zinc-800 dark:bg-zinc-900 flex items-center justify-between shadow-sm">
-          <div>
-            <span className="text-xs font-bold text-zinc-400 uppercase tracking-wider block">Active Products</span>
-            <span className="text-2xl font-black text-zinc-900 dark:text-white mt-1.5 block">{products.length}</span>
-          </div>
-          <div className="rounded-xl bg-blue-500/10 p-3 text-blue-500">
-            <ShoppingBag className="h-6 w-6" />
-          </div>
-        </div>
-      </section>
-
-      {/* --- DASHBOARD NAVIGATION --- */}
-      <div className="flex border-b border-zinc-200 dark:border-zinc-800 mb-8 overflow-x-auto custom-scrollbar">
-        {[
-          { id: 'orders', label: 'Order Management', icon: FileText },
-          { id: 'products', label: 'Product Management', icon: ShoppingBag },
-          { id: 'services', label: 'Service Management', icon: Wrench },
-          { id: 'users', label: 'Customer Log List', icon: Users }
-        ].map((tab) => {
-          const Icon = tab.icon;
-          const isSelected = activeSubTab === tab.id;
+      {/* Navigation Items */}
+      <nav className="flex-1 py-4 px-3 space-y-1 overflow-y-auto custom-scrollbar">
+        {sidebarItems.map((item) => {
+          const Icon = item.icon;
+          const isActive = activeSubTab === item.id;
           return (
             <button
-              key={tab.id}
-              onClick={() => setActiveSubTab(tab.id as any)}
-              className={`flex items-center gap-2 pb-4 px-6 text-xs font-extrabold uppercase tracking-widest whitespace-nowrap relative transition-all ${
-                isSelected 
-                  ? 'text-orange-600 dark:text-orange-500' 
-                  : 'text-zinc-400 hover:text-zinc-600 dark:hover:text-zinc-200'
-              }`}
+              key={item.id}
+              onClick={() => {
+                setActiveSubTab(item.id as any);
+                if (isMobile) setMobileSidebarOpen(false);
+              }}
+              className={`w-full flex items-center gap-3 rounded-lg px-3 py-2.5 text-sm font-semibold transition-all duration-200 ${
+                isActive
+                  ? 'bg-zinc-800 text-white'
+                  : 'text-zinc-400 hover:text-zinc-200 hover:bg-zinc-800/50'
+              } ${sidebarCollapsed && !isMobile ? 'justify-center px-2.5' : ''}`}
+              title={sidebarCollapsed && !isMobile ? item.label : undefined}
             >
-              <Icon className="h-4 w-4" />
-              {tab.label}
-              {isSelected && (
-                <span className="absolute bottom-0 left-0 right-0 h-0.5 bg-orange-600 dark:bg-orange-500" />
+              <Icon className={`h-[18px] w-[18px] shrink-0 ${isActive ? 'text-white' : 'text-zinc-500'}`} />
+              {(!sidebarCollapsed || isMobile) && (
+                <span className="truncate">{item.label}</span>
+              )}
+              {isActive && (!sidebarCollapsed || isMobile) && (
+                <span className="ml-auto h-1.5 w-1.5 rounded-full bg-white shrink-0" />
               )}
             </button>
           );
         })}
+      </nav>
+
+      {/* Sidebar Footer */}
+      <div className={`px-3 py-4 border-t border-zinc-800 ${sidebarCollapsed && !isMobile ? 'px-2' : ''}`}>
+        <button
+          onClick={() => setView('home')}
+          className={`w-full flex items-center gap-3 rounded-lg px-3 py-2.5 text-sm font-semibold text-zinc-500 hover:text-red-400 hover:bg-zinc-800/50 transition-all ${sidebarCollapsed && !isMobile ? 'justify-center px-2.5' : ''}`}
+          title={sidebarCollapsed && !isMobile ? 'Exit Dashboard' : undefined}
+        >
+          <LogOut className="h-[18px] w-[18px] shrink-0" />
+          {(!sidebarCollapsed || isMobile) && <span>Exit Dashboard</span>}
+        </button>
       </div>
+    </div>
+  );
 
-      {/* --- TAB CONTENT 1: ORDER MANAGEMENT --- */}
-      {activeSubTab === 'orders' && (
-        <section className="rounded-3xl border border-zinc-200/80 bg-white p-6 dark:border-zinc-800 dark:bg-zinc-900 shadow-sm">
-          <h2 className="text-sm font-bold text-zinc-950 dark:text-white uppercase tracking-wider mb-6 pb-2 border-b border-zinc-100 dark:border-zinc-800">
-            Customer Invoices &amp; Dispatches ({orders.length})
-          </h2>
+  /* ================================================================
+     INPUT HELPER CLASS
+     ================================================================ */
+  const inputClass = "w-full rounded-md bg-zinc-50 border border-zinc-200 px-3.5 py-2.5 text-sm outline-none focus:border-zinc-900 focus:ring-1 focus:ring-zinc-900 transition-colors placeholder:text-zinc-400";
+  const labelClass = "block text-[11px] font-bold uppercase tracking-wider text-zinc-400 mb-1.5";
 
-          {orders.length === 0 ? (
-            <p className="text-center py-12 text-zinc-400 text-xs">No customer orders recorded yet.</p>
-          ) : (
-            <div className="overflow-x-auto custom-scrollbar">
-              <table className="w-full text-left text-xs text-zinc-600 dark:text-zinc-400 min-w-[700px]">
-                <thead className="bg-zinc-50 dark:bg-zinc-950 uppercase text-[10px] font-bold text-zinc-400 tracking-wider">
-                  <tr>
-                    <th className="px-4 py-3">Order ID</th>
-                    <th className="px-4 py-3">Customer Details</th>
-                    <th className="px-4 py-3">Purchased Items</th>
-                    <th className="px-4 py-3">Settlement</th>
-                    <th className="px-4 py-3">Total paid</th>
-                    <th className="px-4 py-3">Status Code</th>
-                  </tr>
-                </thead>
-                <tbody className="divide-y divide-zinc-150/80 dark:divide-zinc-850">
-                  {orders.map((o) => (
-                    <tr key={o.id} className="hover:bg-zinc-50/50 dark:hover:bg-zinc-950/20">
-                      <td className="px-4 py-4 font-mono font-bold text-zinc-900 dark:text-white">{o.id}</td>
-                      <td className="px-4 py-4">
-                        <div className="font-bold text-zinc-850 dark:text-zinc-100">{o.customerName}</div>
-                        <div className="text-[10px] text-zinc-400">{o.customerEmail}</div>
-                        <div className="text-[10px] text-zinc-400 mt-1 truncate max-w-[180px]">{o.deliveryAddress}</div>
-                      </td>
-                      <td className="px-4 py-4 font-medium">
-                        <ul className="space-y-1">
-                          {o.items.map((item, idx) => (
-                            <li key={idx} className="text-[10px] truncate max-w-[180px]">
-                              ● {item.productName} (Qty: {item.quantity})
-                            </li>
-                          ))}
-                        </ul>
-                      </td>
-                      <td className="px-4 py-4 uppercase font-bold text-[9px]">{o.paymentMethod}</td>
-                      <td className="px-4 py-4 font-extrabold text-zinc-900 dark:text-white">${o.totalAmount.toFixed(2)}</td>
-                      <td className="px-4 py-4">
-                        <select
-                          value={o.status}
-                          onChange={(e) => onUpdateOrderStatus(o.id, e.target.value as any)}
-                          className="rounded border border-zinc-200 bg-white px-2 py-1 text-[10px] font-bold outline-none dark:border-zinc-800 dark:bg-zinc-950"
-                        >
-                          <option value="Pending">Pending</option>
-                          <option value="Shipped">Shipped</option>
-                          <option value="Completed">Completed</option>
-                          <option value="Cancelled">Cancelled</option>
-                        </select>
-                      </td>
-                    </tr>
-                  ))}
-                </tbody>
-              </table>
-            </div>
-          )}
-        </section>
+  return (
+    <div className="flex h-screen bg-zinc-100 overflow-hidden -mx-0 font-sans" id="admin-dashboard-view">
+      
+      {/* ============================================================
+         MOBILE SIDEBAR OVERLAY
+         ============================================================ */}
+      {mobileSidebarOpen && (
+        <div className="fixed inset-0 z-50 lg:hidden">
+          <div className="fixed inset-0 bg-black/50" onClick={() => setMobileSidebarOpen(false)} />
+          <div className="fixed top-0 left-0 bottom-0 w-64 bg-zinc-950 z-50 animate-fade-left">
+            <SidebarContent isMobile />
+          </div>
+        </div>
       )}
 
-      {/* --- TAB CONTENT 2: PRODUCT MANAGEMENT (CRUD) --- */}
-      {activeSubTab === 'products' && (
-        <div className="grid grid-cols-1 lg:grid-cols-12 gap-8 items-start">
-          
-          {/* Add / Edit Form Panel */}
-          <section className="lg:col-span-5 rounded-3xl border border-zinc-200/80 bg-white p-6 dark:border-zinc-800 dark:bg-zinc-900 shadow-sm">
-            <h2 className="text-sm font-bold text-zinc-950 dark:text-white uppercase tracking-wider mb-6 flex items-center justify-between">
-              <span>{editingProductId ? 'Update Product Details' : 'Add New Product to Shop'}</span>
-              {editingProductId && (
-                <button 
-                  onClick={() => {
-                    setEditingProductId(null);
-                    setProdName('');
-                    setProdPrice('');
-                    setProdDesc('');
-                    setProdStock('');
-                    setProdImages('');
-                  }}
-                  className="rounded-full p-1 text-zinc-400 hover:bg-zinc-100"
-                >
-                  <X className="h-4 w-4" />
-                </button>
-              )}
-            </h2>
+      {/* ============================================================
+         DESKTOP SIDEBAR
+         ============================================================ */}
+      <aside className={`hidden lg:flex flex-col bg-zinc-950 shrink-0 transition-all duration-300 ${
+        sidebarCollapsed ? 'w-[68px]' : 'w-60'
+      }`}>
+        <SidebarContent />
+        
+        {/* Collapse Toggle */}
+        <div className="px-3 pb-3">
+          <button
+            onClick={() => setSidebarCollapsed(!sidebarCollapsed)}
+            className="w-full flex items-center justify-center rounded-lg py-2 text-zinc-600 hover:text-zinc-400 hover:bg-zinc-800/50 transition-all"
+          >
+            {sidebarCollapsed ? <ChevronRight className="h-4 w-4" /> : <ChevronLeft className="h-4 w-4" />}
+          </button>
+        </div>
+      </aside>
 
-            <form onSubmit={handleProductSubmit} className="space-y-4 text-xs">
-              <div>
-                <label className="block text-[10px] font-bold uppercase tracking-wider text-zinc-400 mb-1.5">Product Title / Name</label>
-                <input
-                  type="text"
-                  required
-                  value={prodName}
-                  onChange={(e) => setProdName(e.target.value)}
-                  placeholder="e.g. Classic Heavyweight Oversized Tee"
-                  className="w-full rounded-xl bg-zinc-50 border border-zinc-200 px-4.5 py-3 text-xs outline-none focus:border-orange-500 dark:bg-zinc-950 dark:border-zinc-800"
-                />
-              </div>
+      {/* ============================================================
+         MAIN CONTENT AREA
+         ============================================================ */}
+      <div className="flex-1 flex flex-col min-w-0 overflow-hidden">
+        
+        {/* Top Bar */}
+        <header className="flex items-center justify-between bg-white border-b border-zinc-200 px-6 py-4 shrink-0">
+          <div className="flex items-center gap-3">
+            <button 
+              onClick={() => setMobileSidebarOpen(true)} 
+              className="lg:hidden flex items-center justify-center w-9 h-9 rounded-lg border border-zinc-200 text-zinc-500 hover:bg-zinc-50"
+            >
+              <Menu className="h-5 w-5" />
+            </button>
+            <div>
+              <h1 className="text-lg font-extrabold tracking-tight text-zinc-950">
+                {sidebarItems.find(i => i.id === activeSubTab)?.label || 'Dashboard'}
+              </h1>
+              <p className="text-xs text-zinc-400 font-medium">IE &amp; F Company Ltd — Administrative Panel</p>
+            </div>
+          </div>
+          <div className="flex items-center gap-3">
+            <span className="hidden sm:block rounded-md bg-zinc-950 px-3 py-1.5 text-[10px] font-bold text-white uppercase tracking-wider">
+              Store Admin
+            </span>
+          </div>
+        </header>
 
-              <div className="grid grid-cols-2 gap-4">
-                <div>
-                  <label className="block text-[10px] font-bold uppercase tracking-wider text-zinc-400 mb-1.5">Category</label>
-                  <select
-                    value={prodCategory}
-                    onChange={(e) => setProdCategory(e.target.value as any)}
-                    className="w-full rounded-xl bg-zinc-50 border border-zinc-200 px-3 py-3 text-xs outline-none focus:border-orange-500 dark:bg-zinc-950 dark:border-zinc-800"
-                  >
-                    <option value="Electronics">Electronics</option>
-                    <option value="Clothing & Fashion">Clothing &amp; Fashion</option>
-                    <option value="Jewelry">Jewelry</option>
-                    <option value="Footwear">Footwear</option>
-                  </select>
+        {/* Scrollable Content */}
+        <main className="flex-1 overflow-y-auto p-6 custom-scrollbar">
+
+          {/* ============================================================
+             DASHBOARD OVERVIEW
+             ============================================================ */}
+          {activeSubTab === 'dashboard' && (
+            <div className="space-y-6">
+              {/* Stats Cards */}
+              <div className="grid grid-cols-1 sm:grid-cols-2 xl:grid-cols-4 gap-4">
+                <div className="bg-white border border-zinc-200 rounded-md card-lift hover:border-zinc-300 transition-colors p-5 flex items-center justify-between">
+                  <div>
+                    <span className="text-[11px] font-bold text-zinc-400 uppercase tracking-wider block">Total Sales</span>
+                    <span className="text-2xl font-black text-zinc-900 mt-1 block">${totalSales.toFixed(2)}</span>
+                  </div>
+                  <div className="rounded-lg bg-emerald-50 p-3 text-emerald-600">
+                    <DollarSign className="h-5 w-5" />
+                  </div>
                 </div>
-                <div>
-                  <label className="block text-[10px] font-bold uppercase tracking-wider text-zinc-400 mb-1.5">Subcategory</label>
-                  <input
-                    type="text"
-                    required
-                    value={prodSubcategory}
-                    onChange={(e) => setProdSubcategory(e.target.value)}
-                    placeholder="e.g. T-Shirts, CCTV Cameras"
-                    className="w-full rounded-xl bg-zinc-50 border border-zinc-200 px-4.5 py-3 text-xs outline-none focus:border-orange-500 dark:bg-zinc-950 dark:border-zinc-800"
-                  />
+
+                <div className="bg-white border border-zinc-200 rounded-md card-lift hover:border-zinc-300 transition-colors p-5 flex items-center justify-between">
+                  <div>
+                    <span className="text-[11px] font-bold text-zinc-400 uppercase tracking-wider block">Pending Orders</span>
+                    <span className="text-2xl font-black text-zinc-900 mt-1 block">{pendingOrdersCount}</span>
+                  </div>
+                  <div className="rounded-lg bg-amber-50 p-3 text-amber-500">
+                    <Clock className="h-5 w-5" />
+                  </div>
+                </div>
+
+                <div className="bg-white border border-zinc-200 rounded-md card-lift hover:border-zinc-300 transition-colors p-5 flex items-center justify-between">
+                  <div>
+                    <span className="text-[11px] font-bold text-zinc-400 uppercase tracking-wider block">Completed</span>
+                    <span className="text-2xl font-black text-zinc-900 mt-1 block">{completedOrdersCount}</span>
+                  </div>
+                  <div className="rounded-lg bg-zinc-100 p-3 text-zinc-600">
+                    <CheckCircle2 className="h-5 w-5" />
+                  </div>
+                </div>
+
+                <div className="bg-white border border-zinc-200 rounded-md card-lift hover:border-zinc-300 transition-colors p-5 flex items-center justify-between">
+                  <div>
+                    <span className="text-[11px] font-bold text-zinc-400 uppercase tracking-wider block">Active Products</span>
+                    <span className="text-2xl font-black text-zinc-900 mt-1 block">{products.length}</span>
+                  </div>
+                  <div className="rounded-lg bg-zinc-100 p-3 text-zinc-600">
+                    <Package className="h-5 w-5" />
+                  </div>
                 </div>
               </div>
 
-              <div className="grid grid-cols-2 gap-4">
-                <div>
-                  <label className="block text-[10px] font-bold uppercase tracking-wider text-zinc-400 mb-1.5">Price (USD)</label>
-                  <input
-                    type="number"
-                    step="0.01"
-                    required
-                    value={prodPrice}
-                    onChange={(e) => setProdPrice(e.target.value)}
-                    placeholder="24.99"
-                    className="w-full rounded-xl bg-zinc-50 border border-zinc-200 px-4.5 py-3 text-xs outline-none focus:border-orange-500 dark:bg-zinc-950 dark:border-zinc-800"
-                  />
-                </div>
-                <div>
-                  <label className="block text-[10px] font-bold uppercase tracking-wider text-zinc-400 mb-1.5">Stock quantity</label>
-                  <input
-                    type="number"
-                    required
-                    value={prodStock}
-                    onChange={(e) => setProdStock(e.target.value)}
-                    placeholder="25"
-                    className="w-full rounded-xl bg-zinc-50 border border-zinc-200 px-4.5 py-3 text-xs outline-none focus:border-orange-500 dark:bg-zinc-950 dark:border-zinc-800"
-                  />
-                </div>
-              </div>
-
-              <div>
-                <label className="block text-[10px] font-bold uppercase tracking-wider text-zinc-400 mb-1.5">Image URLs (comma separated)</label>
-                <input
-                  type="text"
-                  value={prodImages}
-                  onChange={(e) => setProdImages(e.target.value)}
-                  placeholder="https://images.unsplash.com/photo-X, https://images.unsplash.com/photo-Y"
-                  className="w-full rounded-xl bg-zinc-50 border border-zinc-200 px-4.5 py-3 text-xs outline-none focus:border-orange-500 dark:bg-zinc-950 dark:border-zinc-800"
-                />
-              </div>
-
-              <div>
-                <label className="block text-[10px] font-bold uppercase tracking-wider text-zinc-400 mb-1.5">Product Description</label>
-                <textarea
-                  rows={3}
-                  value={prodDesc}
-                  onChange={(e) => setProdDesc(e.target.value)}
-                  placeholder="Tell customers about material, weight, sizes, chips resolution..."
-                  className="w-full rounded-xl bg-zinc-50 border border-zinc-200 px-4.5 py-3 text-xs outline-none focus:border-orange-500 dark:bg-zinc-950 dark:border-zinc-800"
-                />
-              </div>
-
-              <div className="flex gap-4 border-t border-zinc-100 dark:border-zinc-800 pt-3">
-                <label className="flex items-center gap-2 font-bold cursor-pointer">
-                  <input
-                    type="checkbox"
-                    checked={prodIsBestSeller}
-                    onChange={(e) => setProdIsBestSeller(e.target.checked)}
-                    className="text-orange-600 focus:ring-orange-500 rounded"
-                  />
-                  Bestseller Card Tag
-                </label>
-                <label className="flex items-center gap-2 font-bold cursor-pointer">
-                  <input
-                    type="checkbox"
-                    checked={prodIsFeatured}
-                    onChange={(e) => setProdIsFeatured(e.target.checked)}
-                    className="text-orange-600 focus:ring-orange-500 rounded"
-                  />
-                  Featured Section Tag
-                </label>
-              </div>
-
-              <div className="pt-4">
-                <button
-                  type="submit"
-                  className="w-full flex items-center justify-center gap-2 rounded-xl bg-orange-600 py-3.5 text-center text-xs font-bold text-white transition-all hover:bg-orange-700"
-                >
-                  <Plus className="h-4 w-4" />
-                  {editingProductId ? 'Update Catalog Product' : 'Add Product to Catalog'}
-                </button>
-              </div>
-            </form>
-          </section>
-
-          {/* Products List Panel */}
-          <section className="lg:col-span-7 rounded-3xl border border-zinc-200/80 bg-white p-6 dark:border-zinc-800 dark:bg-zinc-900 shadow-sm">
-            <h2 className="text-sm font-bold text-zinc-950 dark:text-white uppercase tracking-wider mb-6 pb-2 border-b border-zinc-100 dark:border-zinc-800">
-              Active Store Catalog Products ({products.length})
-            </h2>
-
-            <div className="overflow-x-auto custom-scrollbar">
-              <table className="w-full text-left text-xs text-zinc-600 dark:text-zinc-400 min-w-[500px]">
-                <thead className="bg-zinc-50 dark:bg-zinc-950 uppercase text-[10px] font-bold text-zinc-400 tracking-wider">
-                  <tr>
-                    <th className="px-4 py-3">Product</th>
-                    <th className="px-4 py-3">Category</th>
-                    <th className="px-4 py-3">Price</th>
-                    <th className="px-4 py-3">Stock</th>
-                    <th className="px-4 py-3 text-right">Actions</th>
-                  </tr>
-                </thead>
-                <tbody className="divide-y divide-zinc-150/85 dark:divide-zinc-850">
-                  {products.map((p) => (
-                    <tr key={p.id} className="hover:bg-zinc-50/50 dark:hover:bg-zinc-950/20">
-                      <td className="px-4 py-3">
-                        <div className="flex gap-2.5 items-center">
-                          <img 
-                            src={p.images[0]} 
-                            alt="" 
-                            className="h-8 w-8 object-cover rounded-md border" 
-                            referrerPolicy="no-referrer"
-                          />
+              {/* Quick Overview Panels */}
+              <div className="grid grid-cols-1 lg:grid-cols-2 gap-4">
+                {/* Recent Orders */}
+                <div className="bg-white border border-zinc-200 rounded-md card-lift hover:border-zinc-300 transition-colors p-5">
+                  <div className="flex items-center justify-between mb-4">
+                    <h3 className="text-sm font-bold text-zinc-900 uppercase tracking-wider">Recent Orders</h3>
+                    <button onClick={() => setActiveSubTab('orders')} className="text-xs font-semibold text-zinc-400 hover:text-zinc-900 transition-colors">
+                      View All →
+                    </button>
+                  </div>
+                  {orders.length === 0 ? (
+                    <p className="text-center py-8 text-zinc-400 text-xs">No orders yet.</p>
+                  ) : (
+                    <div className="space-y-3">
+                      {orders.slice(-5).reverse().map((o) => (
+                        <div key={o.id} className="flex items-center justify-between py-2 border-b border-zinc-100 last:border-0">
                           <div className="min-w-0">
-                            <h4 className="font-bold text-zinc-850 dark:text-zinc-100 truncate max-w-[150px]">{p.name}</h4>
-                            <span className="text-[9px] text-zinc-400 uppercase">{p.subcategory}</span>
+                            <span className="block text-xs font-bold text-zinc-900 truncate">{o.customerName}</span>
+                            <span className="block text-[10px] text-zinc-400 font-mono">{o.id}</span>
+                          </div>
+                          <div className="text-right shrink-0 ml-3">
+                            <span className="block text-xs font-bold text-zinc-900">${o.totalAmount.toFixed(2)}</span>
+                            <span className={`text-[10px] font-bold uppercase ${
+                              o.status === 'Pending' ? 'text-amber-500' :
+                              o.status === 'Shipped' ? 'text-blue-500' :
+                              o.status === 'Completed' ? 'text-emerald-500' :
+                              'text-red-500'
+                            }`}>{o.status}</span>
                           </div>
                         </div>
-                      </td>
-                      <td className="px-4 py-3 text-[10px] uppercase font-bold text-zinc-400">{p.category}</td>
-                      <td className="px-4 py-3 font-bold text-zinc-900 dark:text-white">${p.price.toFixed(2)}</td>
-                      <td className="px-4 py-3">
-                        <span className={`font-bold ${p.stock <= 8 ? 'text-red-500 font-black' : ''}`}>{p.stock}</span>
-                      </td>
-                      <td className="px-4 py-3 text-right space-x-1 whitespace-nowrap">
-                        <button
-                          onClick={() => handleEditProduct(p)}
-                          className="p-1.5 rounded bg-zinc-100 text-zinc-600 hover:text-orange-600 dark:bg-zinc-800 dark:text-zinc-400"
-                          title="Edit product"
-                        >
-                          <Edit3 className="h-3.5 w-3.5" />
-                        </button>
-                        <button
-                          onClick={() => {
-                            if (confirm(`Delete ${p.name} from catalog?`)) {
-                              onDeleteProduct(p.id);
-                            }
-                          }}
-                          className="p-1.5 rounded bg-red-50 text-red-600 hover:bg-red-100"
-                          title="Delete product"
-                        >
-                          <Trash2 className="h-3.5 w-3.5" />
-                        </button>
-                      </td>
-                    </tr>
-                  ))}
-                </tbody>
-              </table>
+                      ))}
+                    </div>
+                  )}
+                </div>
+
+                {/* Inventory Summary */}
+                <div className="bg-white border border-zinc-200 rounded-md card-lift hover:border-zinc-300 transition-colors p-5">
+                  <div className="flex items-center justify-between mb-4">
+                    <h3 className="text-sm font-bold text-zinc-900 uppercase tracking-wider">Inventory Summary</h3>
+                    <button onClick={() => setActiveSubTab('products')} className="text-xs font-semibold text-zinc-400 hover:text-zinc-900 transition-colors">
+                      View All →
+                    </button>
+                  </div>
+                  <div className="space-y-3">
+                    {['Electronics', 'Clothing & Fashion', 'Jewelry', 'Footwear'].map(cat => {
+                      const count = products.filter(p => p.category === cat).length;
+                      const totalStock = products.filter(p => p.category === cat).reduce((sum, p) => sum + p.stock, 0);
+                      return (
+                        <div key={cat} className="flex items-center justify-between py-2 border-b border-zinc-100 last:border-0">
+                          <span className="text-xs font-semibold text-zinc-700">{cat}</span>
+                          <div className="flex items-center gap-4">
+                            <span className="text-[10px] text-zinc-400 font-bold uppercase">{count} items</span>
+                            <span className="text-xs font-bold text-zinc-900">{totalStock} in stock</span>
+                          </div>
+                        </div>
+                      );
+                    })}
+                  </div>
+                  <div className="mt-4 pt-3 border-t border-zinc-100 flex items-center justify-between">
+                    <span className="text-xs font-bold text-zinc-500">Services Offered</span>
+                    <span className="text-sm font-black text-zinc-900">{services.length}</span>
+                  </div>
+                </div>
+              </div>
             </div>
-          </section>
+          )}
 
-        </div>
-      )}
-
-      {/* --- TAB CONTENT 3: SERVICE MANAGEMENT (CRUD) --- */}
-      {activeSubTab === 'services' && (
-        <div className="grid grid-cols-1 lg:grid-cols-12 gap-8 items-start">
-          
-          {/* Add / Edit Form Panel */}
-          <section className="lg:col-span-5 rounded-3xl border border-zinc-200/80 bg-white p-6 dark:border-zinc-800 dark:bg-zinc-900 shadow-sm">
-            <h2 className="text-sm font-bold text-zinc-950 dark:text-white uppercase tracking-wider mb-6 flex items-center justify-between">
-              <span>{editingServiceId ? 'Update Service Offerings' : 'Register New Technical Service'}</span>
-              {editingServiceId && (
-                <button 
-                  onClick={() => {
-                    setEditingServiceId(null);
-                    setSrvTitle('');
-                    setSrvDesc('');
-                    setSrvDetails('');
-                    setSrvPrice('');
-                    setSrvImage('');
-                  }}
-                  className="rounded-full p-1 text-zinc-400 hover:bg-zinc-100"
-                >
-                  <X className="h-4 w-4" />
-                </button>
+          {/* ============================================================
+             ORDER MANAGEMENT
+             ============================================================ */}
+          {activeSubTab === 'orders' && (
+            <div className="bg-white border border-zinc-200 rounded-md card-lift hover:border-zinc-300 transition-colors">
+              <div className="px-6 py-4 border-b border-zinc-100 flex items-center justify-between">
+                <h2 className="text-sm font-bold text-zinc-900 uppercase tracking-wider">
+                  Customer Orders ({orders.length})
+                </h2>
+              </div>
+              
+              {orders.length === 0 ? (
+                <p className="text-center py-16 text-zinc-400 text-sm">No customer orders recorded yet.</p>
+              ) : (
+                <div className="overflow-x-auto custom-scrollbar">
+                  <table className="w-full text-left text-xs text-zinc-600 min-w-[700px]">
+                    <thead className="bg-zinc-50 uppercase text-[10px] font-bold text-zinc-400 tracking-wider">
+                      <tr>
+                        <th className="px-6 py-3">Order ID</th>
+                        <th className="px-6 py-3">Customer</th>
+                        <th className="px-6 py-3">Items</th>
+                        <th className="px-6 py-3">Payment</th>
+                        <th className="px-6 py-3">Total</th>
+                        <th className="px-6 py-3">Status</th>
+                      </tr>
+                    </thead>
+                    <tbody className="divide-y divide-zinc-100">
+                      {orders.map((o) => (
+                        <tr key={o.id} className="hover:bg-zinc-50/50 transition-colors">
+                          <td className="px-6 py-4 font-mono font-bold text-zinc-900">{o.id}</td>
+                          <td className="px-6 py-4">
+                            <div className="font-bold text-zinc-900">{o.customerName}</div>
+                            <div className="text-[10px] text-zinc-400">{o.customerEmail}</div>
+                            <div className="text-[10px] text-zinc-400 mt-0.5 truncate max-w-[180px]">{o.deliveryAddress}</div>
+                          </td>
+                          <td className="px-6 py-4 font-medium">
+                            <ul className="space-y-0.5">
+                              {o.items.map((item, idx) => (
+                                <li key={idx} className="text-[10px] truncate max-w-[180px]">
+                                  • {item.productName} ×{item.quantity}
+                                </li>
+                              ))}
+                            </ul>
+                          </td>
+                          <td className="px-6 py-4 uppercase font-bold text-[10px] text-zinc-400">{o.paymentMethod}</td>
+                          <td className="px-6 py-4 font-extrabold text-zinc-900">${o.totalAmount.toFixed(2)}</td>
+                          <td className="px-6 py-4">
+                            <select
+                              value={o.status}
+                              onChange={(e) => onUpdateOrderStatus(o.id, e.target.value as any)}
+                              className="rounded-md border border-zinc-200 bg-white px-2.5 py-1.5 text-[11px] font-bold outline-none focus:border-zinc-900"
+                            >
+                              <option value="Pending">Pending</option>
+                              <option value="Shipped">Shipped</option>
+                              <option value="Completed">Completed</option>
+                              <option value="Cancelled">Cancelled</option>
+                            </select>
+                          </td>
+                        </tr>
+                      ))}
+                    </tbody>
+                  </table>
+                </div>
               )}
-            </h2>
+            </div>
+          )}
 
-            <form onSubmit={handleServiceSubmit} className="space-y-4 text-xs">
-              <div>
-                <label className="block text-[10px] font-bold uppercase tracking-wider text-zinc-400 mb-1.5">Service Title</label>
-                <input
-                  type="text"
-                  required
-                  value={srvTitle}
-                  onChange={(e) => setSrvTitle(e.target.value)}
-                  placeholder="e.g. Fire Fighting System Installation"
-                  className="w-full rounded-xl bg-zinc-50 border border-zinc-200 px-4 py-2.5 text-xs outline-none focus:border-orange-500 dark:bg-zinc-950 dark:border-zinc-800"
-                />
+          {/* ============================================================
+             PRODUCT MANAGEMENT
+             ============================================================ */}
+          {activeSubTab === 'products' && (
+            <div className="grid grid-cols-1 xl:grid-cols-12 gap-5 items-start">
+              
+              {/* Add / Edit Form Panel */}
+              <div className="xl:col-span-5 bg-white border border-zinc-200 rounded-md card-lift hover:border-zinc-300 transition-colors p-6">
+                <h2 className="text-sm font-bold text-zinc-900 uppercase tracking-wider mb-5 flex items-center justify-between">
+                  <span>{editingProductId ? 'Update Product' : 'Add New Product'}</span>
+                  {editingProductId && (
+                    <button 
+                      onClick={() => {
+                        setEditingProductId(null);
+                        setProdName('');
+                        setProdPrice('');
+                        setProdDesc('');
+                        setProdStock('');
+                        setProdImages('');
+                      }}
+                      className="rounded-full p-1 text-zinc-400 hover:bg-zinc-100"
+                    >
+                      <X className="h-4 w-4" />
+                    </button>
+                  )}
+                </h2>
+
+                <form onSubmit={handleProductSubmit} className="space-y-4">
+                  <div>
+                    <label className={labelClass}>Product Name</label>
+                    <input
+                      type="text"
+                      required
+                      value={prodName}
+                      onChange={(e) => setProdName(e.target.value)}
+                      placeholder="e.g. Classic Heavyweight Oversized Tee"
+                      className={inputClass}
+                    />
+                  </div>
+
+                  <div className="grid grid-cols-2 gap-3">
+                    <div>
+                      <label className={labelClass}>Category</label>
+                      <select
+                        value={prodCategory}
+                        onChange={(e) => setProdCategory(e.target.value as any)}
+                        className={inputClass}
+                      >
+                        <option value="Electronics">Electronics</option>
+                        <option value="Clothing & Fashion">Clothing &amp; Fashion</option>
+                        <option value="Jewelry">Jewelry</option>
+                        <option value="Footwear">Footwear</option>
+                      </select>
+                    </div>
+                    <div>
+                      <label className={labelClass}>Subcategory</label>
+                      <input
+                        type="text"
+                        required
+                        value={prodSubcategory}
+                        onChange={(e) => setProdSubcategory(e.target.value)}
+                        placeholder="e.g. T-Shirts"
+                        className={inputClass}
+                      />
+                    </div>
+                  </div>
+
+                  <div className="grid grid-cols-2 gap-3">
+                    <div>
+                      <label className={labelClass}>Price (USD)</label>
+                      <input
+                        type="number"
+                        step="0.01"
+                        required
+                        value={prodPrice}
+                        onChange={(e) => setProdPrice(e.target.value)}
+                        placeholder="24.99"
+                        className={inputClass}
+                      />
+                    </div>
+                    <div>
+                      <label className={labelClass}>Stock Quantity</label>
+                      <input
+                        type="number"
+                        required
+                        value={prodStock}
+                        onChange={(e) => setProdStock(e.target.value)}
+                        placeholder="25"
+                        className={inputClass}
+                      />
+                    </div>
+                  </div>
+
+                  <div>
+                    <label className={labelClass}>Image URLs (comma separated)</label>
+                    <input
+                      type="text"
+                      value={prodImages}
+                      onChange={(e) => setProdImages(e.target.value)}
+                      placeholder="https://images.unsplash.com/..."
+                      className={inputClass}
+                    />
+                  </div>
+
+                  <div>
+                    <label className={labelClass}>Description</label>
+                    <textarea
+                      rows={3}
+                      value={prodDesc}
+                      onChange={(e) => setProdDesc(e.target.value)}
+                      placeholder="Describe the product..."
+                      className={inputClass}
+                    />
+                  </div>
+
+                  <div className="flex gap-5 border-t border-zinc-100 pt-3">
+                    <label className="flex items-center gap-2 text-xs font-bold cursor-pointer text-zinc-600">
+                      <input
+                        type="checkbox"
+                        checked={prodIsBestSeller}
+                        onChange={(e) => setProdIsBestSeller(e.target.checked)}
+                        className="rounded border-zinc-300"
+                      />
+                      Bestseller
+                    </label>
+                    <label className="flex items-center gap-2 text-xs font-bold cursor-pointer text-zinc-600">
+                      <input
+                        type="checkbox"
+                        checked={prodIsFeatured}
+                        onChange={(e) => setProdIsFeatured(e.target.checked)}
+                        className="rounded border-zinc-300"
+                      />
+                      Featured
+                    </label>
+                  </div>
+
+                  <button
+                    type="submit"
+                    className="btn-primary w-full justify-center"
+                  >
+                    <Plus className="h-4 w-4" />
+                    {editingProductId ? 'Update Product' : 'Add Product'}
+                  </button>
+                </form>
               </div>
 
-              <div>
-                <label className="block text-[10px] font-bold uppercase tracking-wider text-zinc-400 mb-1.5">Pricing Terms</label>
-                <input
-                  type="text"
-                  required
-                  value={srvPrice}
-                  onChange={(e) => setSrvPrice(e.target.value)}
-                  placeholder="e.g. From $150 (depends on camera count)"
-                  className="w-full rounded-xl bg-zinc-50 border border-zinc-200 px-4 py-2.5 text-xs outline-none focus:border-orange-500 dark:bg-zinc-950 dark:border-zinc-800"
-                />
+              {/* Products List Panel */}
+              <div className="xl:col-span-7 bg-white border border-zinc-200 rounded-md card-lift hover:border-zinc-300 transition-colors">
+                <div className="px-6 py-4 border-b border-zinc-100">
+                  <h2 className="text-sm font-bold text-zinc-900 uppercase tracking-wider">
+                    Product Catalog ({products.length})
+                  </h2>
+                </div>
+
+                <div className="overflow-x-auto custom-scrollbar">
+                  <table className="w-full text-left text-xs text-zinc-600 min-w-[500px]">
+                    <thead className="bg-zinc-50 uppercase text-[10px] font-bold text-zinc-400 tracking-wider">
+                      <tr>
+                        <th className="px-6 py-3">Product</th>
+                        <th className="px-6 py-3">Category</th>
+                        <th className="px-6 py-3">Price</th>
+                        <th className="px-6 py-3">Stock</th>
+                        <th className="px-6 py-3 text-right">Actions</th>
+                      </tr>
+                    </thead>
+                    <tbody className="divide-y divide-zinc-100">
+                      {products.map((p) => (
+                        <tr key={p.id} className="hover:bg-zinc-50/50 transition-colors">
+                          <td className="px-6 py-3">
+                            <div className="flex gap-2.5 items-center">
+                              <img 
+                                src={p.images[0]} 
+                                alt="" 
+                                className="h-9 w-9 object-cover rounded-md border border-zinc-200" 
+                                referrerPolicy="no-referrer"
+                              />
+                              <div className="min-w-0">
+                                <h4 className="font-bold text-zinc-900 truncate max-w-[150px]">{p.name}</h4>
+                                <span className="text-[9px] text-zinc-400 uppercase">{p.subcategory}</span>
+                              </div>
+                            </div>
+                          </td>
+                          <td className="px-6 py-3 text-[10px] uppercase font-bold text-zinc-400">{p.category}</td>
+                          <td className="px-6 py-3 font-bold text-zinc-900">${p.price.toFixed(2)}</td>
+                          <td className="px-6 py-3">
+                            <span className={`font-bold ${p.stock <= 8 ? 'text-red-500' : 'text-zinc-700'}`}>{p.stock}</span>
+                          </td>
+                          <td className="px-6 py-3 text-right space-x-1.5 whitespace-nowrap">
+                            <button
+                              onClick={() => handleEditProduct(p)}
+                              className="p-1.5 rounded-md bg-zinc-100 text-zinc-500 hover:text-zinc-900 transition-colors"
+                              title="Edit product"
+                            >
+                              <Edit3 className="h-3.5 w-3.5" />
+                            </button>
+                            <button
+                              onClick={() => {
+                                if (confirm(`Delete ${p.name} from catalog?`)) {
+                                  onDeleteProduct(p.id);
+                                }
+                              }}
+                              className="p-1.5 rounded-md bg-red-50 text-red-500 hover:bg-red-100 transition-colors"
+                              title="Delete product"
+                            >
+                              <Trash2 className="h-3.5 w-3.5" />
+                            </button>
+                          </td>
+                        </tr>
+                      ))}
+                    </tbody>
+                  </table>
+                </div>
               </div>
 
-              <div>
-                <label className="block text-[10px] font-bold uppercase tracking-wider text-zinc-400 mb-1.5">Cover Image URL</label>
-                <input
-                  type="text"
-                  value={srvImage}
-                  onChange={(e) => setSrvImage(e.target.value)}
-                  placeholder="https://images.unsplash.com/photo-X"
-                  className="w-full rounded-xl bg-zinc-50 border border-zinc-200 px-4 py-2.5 text-xs outline-none focus:border-orange-500 dark:bg-zinc-950 dark:border-zinc-800"
-                />
+            </div>
+          )}
+
+          {/* ============================================================
+             SERVICE MANAGEMENT
+             ============================================================ */}
+          {activeSubTab === 'services' && (
+            <div className="grid grid-cols-1 xl:grid-cols-12 gap-5 items-start">
+              
+              {/* Add / Edit Form Panel */}
+              <div className="xl:col-span-5 bg-white border border-zinc-200 rounded-md card-lift hover:border-zinc-300 transition-colors p-6">
+                <h2 className="text-sm font-bold text-zinc-900 uppercase tracking-wider mb-5 flex items-center justify-between">
+                  <span>{editingServiceId ? 'Update Service' : 'Add New Service'}</span>
+                  {editingServiceId && (
+                    <button 
+                      onClick={() => {
+                        setEditingServiceId(null);
+                        setSrvTitle('');
+                        setSrvDesc('');
+                        setSrvDetails('');
+                        setSrvPrice('');
+                        setSrvImage('');
+                      }}
+                      className="rounded-full p-1 text-zinc-400 hover:bg-zinc-100"
+                    >
+                      <X className="h-4 w-4" />
+                    </button>
+                  )}
+                </h2>
+
+                <form onSubmit={handleServiceSubmit} className="space-y-4">
+                  <div>
+                    <label className={labelClass}>Service Title</label>
+                    <input
+                      type="text"
+                      required
+                      value={srvTitle}
+                      onChange={(e) => setSrvTitle(e.target.value)}
+                      placeholder="e.g. Fire Fighting System Installation"
+                      className={inputClass}
+                    />
+                  </div>
+
+                  <div>
+                    <label className={labelClass}>Pricing Terms</label>
+                    <input
+                      type="text"
+                      required
+                      value={srvPrice}
+                      onChange={(e) => setSrvPrice(e.target.value)}
+                      placeholder="e.g. From $150 (depends on camera count)"
+                      className={inputClass}
+                    />
+                  </div>
+
+                  <div>
+                    <label className={labelClass}>Cover Image URL</label>
+                    <input
+                      type="text"
+                      value={srvImage}
+                      onChange={(e) => setSrvImage(e.target.value)}
+                      placeholder="https://images.unsplash.com/..."
+                      className={inputClass}
+                    />
+                  </div>
+
+                  <div>
+                    <label className={labelClass}>Included Scopes (comma separated)</label>
+                    <textarea
+                      rows={2}
+                      value={srvDetails}
+                      onChange={(e) => setSrvDetails(e.target.value)}
+                      placeholder="Onsite survey, Hardware mounting, Software testing..."
+                      className={inputClass}
+                    />
+                  </div>
+
+                  <div>
+                    <label className={labelClass}>Service Description</label>
+                    <textarea
+                      rows={3}
+                      value={srvDesc}
+                      onChange={(e) => setSrvDesc(e.target.value)}
+                      placeholder="Explain scope, certifications, warranties..."
+                      className={inputClass}
+                    />
+                  </div>
+
+                  <button
+                    type="submit"
+                    className="btn-primary w-full justify-center"
+                  >
+                    <Plus className="h-4 w-4" />
+                    {editingServiceId ? 'Update Service' : 'Add Service'}
+                  </button>
+                </form>
               </div>
 
-              <div>
-                <label className="block text-[10px] font-bold uppercase tracking-wider text-zinc-400 mb-1.5">Included scopes (comma separated)</label>
-                <textarea
-                  rows={2}
-                  value={srvDetails}
-                  onChange={(e) => setSrvDetails(e.target.value)}
-                  placeholder="Onsite survey consultation, Full hardware mounting, Software testing..."
-                  className="w-full rounded-xl bg-zinc-50 border border-zinc-200 px-4 py-2.5 text-xs outline-none focus:border-orange-500 dark:bg-zinc-950 dark:border-zinc-800"
-                />
+              {/* Services List Panel */}
+              <div className="xl:col-span-7 bg-white border border-zinc-200 rounded-md card-lift hover:border-zinc-300 transition-colors">
+                <div className="px-6 py-4 border-b border-zinc-100">
+                  <h2 className="text-sm font-bold text-zinc-900 uppercase tracking-wider">
+                    Registered Services ({services.length})
+                  </h2>
+                </div>
+
+                <div className="overflow-x-auto custom-scrollbar">
+                  <table className="w-full text-left text-xs text-zinc-600 min-w-[500px]">
+                    <thead className="bg-zinc-50 uppercase text-[10px] font-bold text-zinc-400 tracking-wider">
+                      <tr>
+                        <th className="px-6 py-3">Service</th>
+                        <th className="px-6 py-3">Pricing</th>
+                        <th className="px-6 py-3">Details</th>
+                        <th className="px-6 py-3 text-right">Actions</th>
+                      </tr>
+                    </thead>
+                    <tbody className="divide-y divide-zinc-100">
+                      {services.map((s) => (
+                        <tr key={s.id} className="hover:bg-zinc-50/50 transition-colors">
+                          <td className="px-6 py-3 font-bold text-zinc-900">{s.title}</td>
+                          <td className="px-6 py-3 text-[11px] font-semibold text-zinc-500">{s.priceInfo}</td>
+                          <td className="px-6 py-3 text-zinc-400 font-medium">{s.details.length} scopes</td>
+                          <td className="px-6 py-3 text-right space-x-1.5 whitespace-nowrap">
+                            <button
+                              onClick={() => handleEditService(s)}
+                              className="p-1.5 rounded-md bg-zinc-100 text-zinc-500 hover:text-zinc-900 transition-colors"
+                            >
+                              <Edit3 className="h-3.5 w-3.5" />
+                            </button>
+                            <button
+                              onClick={() => {
+                                if (confirm(`Delete ${s.title}?`)) {
+                                  onDeleteService(s.id);
+                                }
+                              }}
+                              className="p-1.5 rounded-md bg-red-50 text-red-500 hover:bg-red-100 transition-colors"
+                            >
+                              <Trash2 className="h-3.5 w-3.5" />
+                            </button>
+                          </td>
+                        </tr>
+                      ))}
+                    </tbody>
+                  </table>
+                </div>
               </div>
 
-              <div>
-                <label className="block text-[10px] font-bold uppercase tracking-wider text-zinc-400 mb-1.5">Service Overview Description</label>
-                <textarea
-                  rows={3}
-                  value={srvDesc}
-                  onChange={(e) => setSrvDesc(e.target.value)}
-                  placeholder="Explain scope, certifications, hardware warranties..."
-                  className="w-full rounded-xl bg-zinc-50 border border-zinc-200 px-4 py-2.5 text-xs outline-none focus:border-orange-500 dark:bg-zinc-950 dark:border-zinc-800"
-                />
+            </div>
+          )}
+
+          {/* ============================================================
+             CUSTOMER LIST
+             ============================================================ */}
+          {activeSubTab === 'users' && (
+            <div className="bg-white border border-zinc-200 rounded-md card-lift hover:border-zinc-300 transition-colors">
+              <div className="px-6 py-4 border-b border-zinc-100">
+                <h2 className="text-sm font-bold text-zinc-900 uppercase tracking-wider">
+                  Registered Customers
+                </h2>
               </div>
 
-              <div className="pt-4">
-                <button
-                  type="submit"
-                  className="w-full flex items-center justify-center gap-2 rounded-xl bg-orange-600 py-3.5 text-center text-xs font-bold text-white transition-all hover:bg-orange-700"
-                >
-                  <Plus className="h-4 w-4" />
-                  {editingServiceId ? 'Update Service Offerings' : 'Register New Tech Service'}
+              <div className="overflow-x-auto custom-scrollbar">
+                <table className="w-full text-left text-xs text-zinc-600 min-w-[600px]">
+                  <thead className="bg-zinc-50 uppercase text-[10px] font-bold text-zinc-400 tracking-wider">
+                    <tr>
+                      <th className="px-6 py-3">Customer Name</th>
+                      <th className="px-6 py-3">Email</th>
+                      <th className="px-6 py-3">Phone</th>
+                      <th className="px-6 py-3">Address</th>
+                      <th className="px-6 py-3 text-right">Orders</th>
+                    </tr>
+                  </thead>
+                  <tbody className="divide-y divide-zinc-100">
+                    {[
+                      { name: 'Diana Ishimwe', email: 'ishimwedianah80@gmail.com', phone: '+250 788 345 678', address: 'KN 4 Ave, Kigali City Mall, Ground Floor Plaza' },
+                      { name: 'Jean Damascene', email: 'customer@iefshop.com', phone: '+250 782 101 202', address: 'Kacyiru Sector, Gasabo, Kigali' }
+                    ].map((user, idx) => {
+                      const uOrdersCount = orders.filter(o => o.customerEmail.toLowerCase() === user.email.toLowerCase()).length;
+                      return (
+                        <tr key={idx} className="hover:bg-zinc-50/50 transition-colors">
+                          <td className="px-6 py-4 font-bold text-zinc-900">{user.name}</td>
+                          <td className="px-6 py-4 font-medium">{user.email}</td>
+                          <td className="px-6 py-4 text-zinc-500">{user.phone}</td>
+                          <td className="px-6 py-4 text-zinc-500 truncate max-w-[200px]" title={user.address}>{user.address}</td>
+                          <td className="px-6 py-4 text-right font-black text-zinc-900">{uOrdersCount}</td>
+                        </tr>
+                      );
+                    })}
+                  </tbody>
+                </table>
+              </div>
+            </div>
+          )}
+
+          {/* ============================================================
+             SETTINGS
+             ============================================================ */}
+          {activeSubTab === 'settings' && (
+            <div className="bg-white border border-zinc-200 rounded-md card-lift hover:border-zinc-300 transition-colors p-6 max-w-2xl">
+              <h2 className="text-sm font-bold text-zinc-900 uppercase tracking-wider mb-6">Store Settings</h2>
+              <div className="space-y-5">
+                <div>
+                  <label className={labelClass}>Store Name</label>
+                  <input type="text" defaultValue="IE & F Company Ltd" className={inputClass} />
+                </div>
+                <div>
+                  <label className={labelClass}>Contact Email</label>
+                  <input type="email" defaultValue="info@iefcompany.com" className={inputClass} />
+                </div>
+                <div>
+                  <label className={labelClass}>Phone Number</label>
+                  <input type="tel" defaultValue="+250 789 123 456" className={inputClass} />
+                </div>
+                <div>
+                  <label className={labelClass}>Business Address</label>
+                  <textarea rows={2} defaultValue="KN 4 Ave, Kigali, Rwanda" className={inputClass} />
+                </div>
+                <button className="btn-primary">
+                  Save Changes
                 </button>
               </div>
-            </form>
-          </section>
-
-          {/* Services List Panel */}
-          <section className="lg:col-span-7 rounded-3xl border border-zinc-200/80 bg-white p-6 dark:border-zinc-800 dark:bg-zinc-900 shadow-sm">
-            <h2 className="text-sm font-bold text-zinc-950 dark:text-white uppercase tracking-wider mb-6 pb-2 border-b border-zinc-100 dark:border-zinc-800">
-              Registered System Services ({services.length})
-            </h2>
-
-            <div className="overflow-x-auto custom-scrollbar">
-              <table className="w-full text-left text-xs text-zinc-600 dark:text-zinc-400 min-w-[500px]">
-                <thead className="bg-zinc-50 dark:bg-zinc-950 uppercase text-[10px] font-bold text-zinc-400 tracking-wider">
-                  <tr>
-                    <th className="px-4 py-3">Technical Service</th>
-                    <th className="px-4 py-3">Pricing Tier</th>
-                    <th className="px-4 py-3">Details count</th>
-                    <th className="px-4 py-3 text-right">Actions</th>
-                  </tr>
-                </thead>
-                <tbody className="divide-y divide-zinc-150/85 dark:divide-zinc-850">
-                  {services.map((s) => (
-                    <tr key={s.id} className="hover:bg-zinc-50/50 dark:hover:bg-zinc-950/20">
-                      <td className="px-4 py-3 font-bold text-zinc-850 dark:text-zinc-100">{s.title}</td>
-                      <td className="px-4 py-3 text-[10px] font-bold text-zinc-500">{s.priceInfo}</td>
-                      <td className="px-4 py-3 text-zinc-400 font-medium">{s.details.length} points</td>
-                      <td className="px-4 py-3 text-right space-x-1 whitespace-nowrap">
-                        <button
-                          onClick={() => handleEditService(s)}
-                          className="p-1.5 rounded bg-zinc-100 text-zinc-600 hover:text-orange-600 dark:bg-zinc-800 dark:text-zinc-400"
-                        >
-                          <Edit3 className="h-3.5 w-3.5" />
-                        </button>
-                        <button
-                          onClick={() => {
-                            if (confirm(`Delete ${s.title}?`)) {
-                              onDeleteService(s.id);
-                            }
-                          }}
-                          className="p-1.5 rounded bg-red-50 text-red-600 hover:bg-red-100"
-                        >
-                          <Trash2 className="h-3.5 w-3.5" />
-                        </button>
-                      </td>
-                    </tr>
-                  ))}
-                </tbody>
-              </table>
             </div>
-          </section>
+          )}
 
-        </div>
-      )}
-
-      {/* --- TAB CONTENT 4: USER MANAGEMENT --- */}
-      {activeSubTab === 'users' && (
-        <section className="rounded-3xl border border-zinc-200/80 bg-white p-6 dark:border-zinc-800 dark:bg-zinc-900 shadow-sm">
-          <h2 className="text-sm font-bold text-zinc-950 dark:text-white uppercase tracking-wider mb-6 pb-2 border-b border-zinc-100 dark:border-zinc-800">
-            Registered Shop Customers Database
-          </h2>
-
-          <div className="overflow-x-auto custom-scrollbar">
-            <table className="w-full text-left text-xs text-zinc-600 dark:text-zinc-400 min-w-[600px]">
-              <thead className="bg-zinc-50 dark:bg-zinc-950 uppercase text-[10px] font-bold text-zinc-400 tracking-wider">
-                <tr>
-                  <th className="px-4 py-3">Customer Name</th>
-                  <th className="px-4 py-3">Registered Email</th>
-                  <th className="px-4 py-3">Logistics Phone</th>
-                  <th className="px-4 py-3">Delivery Address</th>
-                  <th className="px-4 py-3 text-right">Transactions Count</th>
-                </tr>
-              </thead>
-              <tbody className="divide-y divide-zinc-150/80 dark:divide-zinc-850">
-                {[
-                  { name: 'Diana Ishimwe', email: 'ishimwedianah80@gmail.com', phone: '+250 788 345 678', address: 'KN 4 Ave, Kigali City Mall, Ground Floor Plaza' },
-                  { name: 'Jean Damascene', email: 'customer@iefshop.com', phone: '+250 782 101 202', address: 'Kacyiru Sector, Gasabo, Kigali' }
-                ].map((user, idx) => {
-                  const uOrdersCount = orders.filter(o => o.customerEmail.toLowerCase() === user.email.toLowerCase()).length;
-                  return (
-                    <tr key={idx} className="hover:bg-zinc-50/50 dark:hover:bg-zinc-950/20">
-                      <td className="px-4 py-3.5 font-bold text-zinc-850 dark:text-zinc-100">{user.name}</td>
-                      <td className="px-4 py-3.5 font-medium">{user.email}</td>
-                      <td className="px-4 py-3.5 text-zinc-500">{user.phone}</td>
-                      <td className="px-4 py-3.5 text-zinc-500 leading-normal max-w-[200px] truncate" title={user.address}>{user.address}</td>
-                      <td className="px-4 py-3.5 text-right font-black text-zinc-900 dark:text-white">{uOrdersCount} Invoices</td>
-                    </tr>
-                  );
-                })}
-              </tbody>
-            </table>
-          </div>
-        </section>
-      )}
-
+        </main>
+      </div>
     </div>
   );
 }

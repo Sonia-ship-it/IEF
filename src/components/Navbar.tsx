@@ -1,9 +1,8 @@
-/**
- * @license
- * SPDX-License-Identifier: Apache-2.0
- */
+"use client";
 
 import React, { useState, useEffect } from 'react';
+import Link from 'next/link';
+import { usePathname } from 'next/navigation';
 import {
   ShoppingBag,
   Heart,
@@ -19,31 +18,19 @@ import {
   HelpCircle,
   Mail
 } from 'lucide-react';
-import { User } from '../types';
 import BrandLogo from './BrandLogo';
+import { useAppContext } from '../context/AppContext';
 
-interface NavbarProps {
-  currentView: string;
-  setView: (view: any) => void;
-  cartCount: number;
-  wishlistCount: number;
-  theme: 'light' | 'dark';
-  toggleTheme: () => void;
-  currentUser: User | null;
-  logout: () => void;
-}
-
-export default function Navbar({
-  currentView,
-  setView,
-  cartCount,
-  wishlistCount,
-  currentUser,
-  logout
-}: NavbarProps) {
+export default function Navbar() {
   const [mobileMenuOpen, setMobileMenuOpen] = useState(false);
   const [userDropdownOpen, setUserDropdownOpen] = useState(false);
   const [scrolled, setScrolled] = useState(false);
+  
+  const pathname = usePathname();
+  const { cart, wishlist, currentUser, logout } = useAppContext();
+  
+  const cartCount = cart.reduce((total, item) => total + item.quantity, 0);
+  const wishlistCount = wishlist.length;
 
   useEffect(() => {
     const onScroll = () => setScrolled(window.scrollY > 20);
@@ -51,32 +38,36 @@ export default function Navbar({
     return () => window.removeEventListener('scroll', onScroll);
   }, []);
 
-  const navItems = [
-    { label: 'Home', view: 'home', icon: Compass },
-    { label: 'Shop', view: 'shop', icon: Sparkles },
-    { label: 'Services', view: 'services', icon: Briefcase },
-    { label: 'About', view: 'about', icon: HelpCircle },
-    { label: 'Contact', view: 'contact', icon: Mail },
-  ];
-
-  const handleNavClick = (view: string) => {
-    setView(view);
+  // Close dropdowns on path change
+  useEffect(() => {
     setMobileMenuOpen(false);
     setUserDropdownOpen(false);
-  };
+  }, [pathname]);
+
+  const navItems = [
+    { label: 'Home', href: '/', icon: Compass },
+    { label: 'Shop', href: '/shop', icon: Sparkles },
+    { label: 'Services', href: '/services', icon: Briefcase },
+    { label: 'About', href: '/about', icon: HelpCircle },
+    { label: 'Contact', href: '/contact', icon: Mail },
+  ];
+
+  if (pathname?.startsWith('/admin')) {
+    return null;
+  }
 
   return (
     <header className="sticky top-0 z-50 w-full px-4 sm:px-6 lg:px-8 py-3 bg-transparent pointer-events-none">
       <div className="mx-auto max-w-5xl w-full flex items-center justify-center gap-3 pointer-events-auto">
         
-        {/* Brand Logo — Round pill */}
-        <div
+        {/* Brand Logo */}
+        <Link
+          href="/"
           className="flex h-16 w-16 items-center justify-center rounded-full border border-zinc-200 bg-white shadow-sm shrink-0 cursor-pointer hover:border-zinc-400 hover:shadow-md transition-all duration-200"
-          onClick={() => handleNavClick('home')}
           title="Go Home"
         >
           <BrandLogo iconOnly size="sm" />
-        </div>
+        </Link>
 
         {/* Main Pill Nav Container */}
         <div
@@ -87,13 +78,11 @@ export default function Navbar({
           {/* Desktop Navigation Links */}
           <nav className="hidden md:flex items-center gap-0.5">
             {navItems.map((item) => {
-              const isActive =
-                currentView === item.view ||
-                (item.view === 'shop' && currentView === 'product-detail');
+              const isActive = pathname === item.href || (item.href !== '/' && pathname.startsWith(item.href));
               return (
-                <button
-                  key={item.view}
-                  onClick={() => handleNavClick(item.view)}
+                <Link
+                  key={item.href}
+                  href={item.href}
                   className={`relative flex items-center gap-2 px-4 py-2 text-sm font-semibold tracking-wide rounded-full transition-all duration-200 ${
                     isActive
                       ? 'text-zinc-900 bg-zinc-100 font-bold'
@@ -104,7 +93,7 @@ export default function Navbar({
                   {isActive && (
                     <span className="absolute bottom-1 left-1/2 -translate-x-1/2 w-1 h-1 rounded-full bg-zinc-900" />
                   )}
-                </button>
+                </Link>
               );
             })}
           </nav>
@@ -113,10 +102,10 @@ export default function Navbar({
           <div className="flex items-center gap-2 ml-auto">
             
             {/* Wishlist */}
-            <button
-              onClick={() => handleNavClick('wishlist')}
+            <Link
+              href="/wishlist"
               className={`relative flex items-center justify-center w-10 h-10 rounded-full transition-all duration-200 ${
-                currentView === 'wishlist'
+                pathname === '/wishlist'
                   ? 'text-zinc-900 bg-zinc-100'
                   : 'text-zinc-400 hover:text-zinc-900 hover:bg-zinc-100'
               }`}
@@ -128,13 +117,13 @@ export default function Navbar({
                   {wishlistCount}
                 </span>
               )}
-            </button>
+            </Link>
 
             {/* Cart */}
-            <button
-              onClick={() => handleNavClick('cart')}
+            <Link
+              href="/cart"
               className={`relative flex items-center justify-center w-10 h-10 rounded-full transition-all duration-200 ${
-                currentView === 'cart'
+                pathname === '/cart'
                   ? 'text-zinc-900 bg-zinc-100'
                   : 'text-zinc-400 hover:text-zinc-900 hover:bg-zinc-100'
               }`}
@@ -146,7 +135,7 @@ export default function Navbar({
                   {cartCount}
                 </span>
               )}
-            </button>
+            </Link>
 
             {/* Divider */}
             <span className="w-px h-6 bg-zinc-200 mx-1" />
@@ -169,25 +158,25 @@ export default function Navbar({
                     <>
                       <div className="fixed inset-0 z-10" onClick={() => setUserDropdownOpen(false)} />
                       <div className="absolute right-0 mt-3 w-52 z-20 origin-top-right rounded-md border border-zinc-200 bg-white p-1.5 shadow-xl animate-slide-down">
-                        <button
-                          onClick={() => handleNavClick('auth')}
+                        <Link
+                          href="/auth"
                           className="flex w-full items-center gap-2.5 rounded-md px-3.5 py-2.5 text-sm font-semibold text-zinc-700 hover:bg-zinc-100 transition-colors"
                         >
                           <UserIcon className="h-4 w-4 text-zinc-500" />
                           Profile &amp; Orders
-                        </button>
+                        </Link>
                         {currentUser.role === 'admin' && (
-                          <button
-                            onClick={() => handleNavClick('admin')}
+                          <Link
+                            href="/admin"
                             className="flex w-full items-center gap-2.5 rounded-md px-3.5 py-2.5 text-sm font-semibold text-zinc-700 hover:bg-zinc-100 transition-colors"
                           >
                             <LayoutDashboard className="h-4 w-4 text-zinc-500" />
                             Admin Dashboard
-                          </button>
+                          </Link>
                         )}
                         <div className="border-t border-zinc-100 mt-1.5 pt-1.5">
                           <button
-                            onClick={logout}
+                            onClick={() => { logout(); setUserDropdownOpen(false); }}
                             className="flex w-full items-center gap-2.5 rounded-md px-3.5 py-2.5 text-sm font-semibold text-red-600 hover:bg-red-50 transition-colors"
                           >
                             <LogOut className="h-4 w-4" />
@@ -199,12 +188,12 @@ export default function Navbar({
                   )}
                 </div>
               ) : (
-                <button
-                  onClick={() => handleNavClick('auth')}
-                  className="rounded-full bg-zinc-900 px-5 py-2.5 text-sm font-bold tracking-wide text-white hover:bg-zinc-700 transition-all duration-200 hover:shadow-md"
+                <Link
+                  href="/auth"
+                  className="inline-flex rounded-full bg-zinc-900 px-5 py-2.5 text-sm font-bold tracking-wide text-white hover:bg-zinc-700 transition-all duration-200 hover:shadow-md"
                 >
                   Get Started
-                </button>
+                </Link>
               )}
             </div>
 
@@ -226,11 +215,11 @@ export default function Navbar({
           <div className="px-4 py-4 space-y-1.5">
             {navItems.map((item) => {
               const Icon = item.icon;
-              const isActive = currentView === item.view;
+              const isActive = pathname === item.href || (item.href !== '/' && pathname.startsWith(item.href));
               return (
-                <button
-                  key={item.view}
-                  onClick={() => handleNavClick(item.view)}
+                <Link
+                  key={item.href}
+                  href={item.href}
                   className={`flex w-full items-center justify-between rounded-md px-4 py-3 text-sm font-bold transition-all ${
                     isActive ? 'bg-zinc-100 text-zinc-900' : 'text-zinc-600 hover:bg-zinc-50'
                   }`}
@@ -240,17 +229,17 @@ export default function Navbar({
                     {item.label}
                   </span>
                   <ChevronRight className="h-4 w-4 text-zinc-400" />
-                </button>
+                </Link>
               );
             })}
             {!currentUser && (
-              <div className="pt-3 border-t border-zinc-100 mt-2">
-                <button
-                  onClick={() => handleNavClick('auth')}
+              <div className="pt-3 border-t border-zinc-100 mt-2 flex flex-col">
+                <Link
+                  href="/auth"
                   className="w-full rounded-md bg-zinc-900 py-3 text-sm font-bold text-white text-center hover:bg-zinc-700 transition-colors"
                 >
                   Get Started
-                </button>
+                </Link>
               </div>
             )}
           </div>

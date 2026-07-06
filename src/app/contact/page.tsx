@@ -1,0 +1,7 @@
+"use client";
+
+import ContactView from '../../components/ContactView';
+
+export default function ContactPage() {
+  return <ContactView />;
+}

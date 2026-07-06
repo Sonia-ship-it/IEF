@@ -1,9 +1,8 @@
-/**
- * @license
- * SPDX-License-Identifier: Apache-2.0
- */
+"use client";
 
 import React, { useState } from 'react';
+import Link from 'next/link';
+import { usePathname } from 'next/navigation';
 import {
   Phone,
   Mail,
@@ -18,13 +17,10 @@ import {
 } from 'lucide-react';
 import BrandLogo from './BrandLogo';
 
-interface FooterProps {
-  setView: (view: any) => void;
-}
-
-export default function Footer({ setView }: FooterProps) {
+export default function Footer() {
   const [email, setEmail] = useState('');
   const [subscribed, setSubscribed] = useState(false);
+  const pathname = usePathname();
 
   const handleSubscribe = (e: React.FormEvent) => {
     e.preventDefault();
@@ -35,24 +31,28 @@ export default function Footer({ setView }: FooterProps) {
     }
   };
 
+  if (pathname?.startsWith('/admin')) {
+    return null;
+  }
+
   const navGroups = [
     {
       label: 'Navigate',
       links: [
-        { name: 'Home', view: 'home' },
-        { name: 'Shop', view: 'shop' },
-        { name: 'Technical Services', view: 'services' },
-        { name: 'About Company', view: 'about' },
-        { name: 'How to Shop', view: 'how-to-shop' },
+        { name: 'Home', view: '/' },
+        { name: 'Shop', view: '/shop' },
+        { name: 'Technical Services', view: '/services' },
+        { name: 'About Company', view: '/about' },
+        { name: 'How to Shop', view: '/how-to-shop' },
       ]
     },
     {
       label: 'Support',
       links: [
-        { name: 'Contact & Support', view: 'contact' },
-        { name: 'Refunds & Returns', view: 'returns' },
-        { name: 'My Wishlist', view: 'wishlist' },
-        { name: 'My Cart', view: 'cart' },
+        { name: 'Contact & Support', view: '/contact' },
+        { name: 'Refunds & Returns', view: '/returns' },
+        { name: 'My Wishlist', view: '/wishlist' },
+        { name: 'My Cart', view: '/cart' },
       ]
     }
   ];
@@ -102,9 +102,9 @@ export default function Footer({ setView }: FooterProps) {
 
           {/* Brand Column */}
           <div className="lg:col-span-1">
-            <div className="cursor-pointer mb-6" onClick={() => setView('home')}>
+            <Link href="/" className="inline-block mb-6 cursor-pointer">
               <BrandLogo size="md" />
-            </div>
+            </Link>
             <p className="text-sm text-zinc-400 leading-relaxed mb-8 font-medium">
               The premier destination combining fashion, electronics, and engineering services in Kigali, Rwanda.
             </p>
@@ -136,13 +136,13 @@ export default function Footer({ setView }: FooterProps) {
               <ul className="space-y-4">
                 {group.links.map((link) => (
                   <li key={link.view}>
-                    <button
-                      onClick={() => setView(link.view)}
+                    <Link
+                      href={link.view}
                       className="group flex items-center gap-2 text-sm text-zinc-400 hover:text-white transition-colors font-medium"
                     >
                       <ArrowRight className="h-3.5 w-3.5 opacity-0 -translate-x-2 group-hover:opacity-100 group-hover:translate-x-0 transition-all text-white" />
                       {link.name}
-                    </button>
+                    </Link>
                   </li>
                 ))}
               </ul>
@@ -181,13 +181,13 @@ export default function Footer({ setView }: FooterProps) {
           <p className="text-xs font-black uppercase tracking-widest text-zinc-500 mb-4">Technical Solutions</p>
           <div className="flex flex-wrap gap-2">
             {services.map((s) => (
-              <button
+              <Link
                 key={s}
-                onClick={() => setView('services')}
+                href="/services"
                 className="px-4 py-2 rounded-md border border-zinc-800 text-xs font-bold text-zinc-400 bg-zinc-900 hover:border-white hover:text-white transition-colors"
               >
                 {s}
-              </button>
+              </Link>
             ))}
           </div>
         </div>
@@ -196,9 +196,9 @@ export default function Footer({ setView }: FooterProps) {
         <div className="mt-12 pt-8 border-t border-zinc-800 flex flex-col md:flex-row items-center justify-between gap-6 text-xs text-zinc-500 font-semibold">
           <p>© {new Date().getFullYear()} IE &amp; F Shop. All rights reserved. Kigali, Rwanda.</p>
           <div className="flex gap-6">
-            <button onClick={() => setView('returns')} className="hover:text-white transition-colors">Privacy Policy</button>
-            <button onClick={() => setView('returns')} className="hover:text-white transition-colors">Terms of Service</button>
-            <button onClick={() => setView('returns')} className="hover:text-white transition-colors">Returns &amp; Refunds</button>
+            <Link href="/returns" className="hover:text-white transition-colors">Privacy Policy</Link>
+            <Link href="/returns" className="hover:text-white transition-colors">Terms of Service</Link>
+            <Link href="/returns" className="hover:text-white transition-colors">Returns &amp; Refunds</Link>
           </div>
         </div>
 
