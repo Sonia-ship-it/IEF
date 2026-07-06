@@ -19,8 +19,7 @@ import {
 import { Product } from '../types';
 import { TESTIMONIALS, SHOPPING_STEPS } from '../data';
 
-// Import the specific illustration asset from local folder
-import ecommerceImg from '../../assets/ecommerce.png';
+// Import removed because we use /assets/ecommerce.png
 
 interface HomeViewProps {
   products: Product[];
@@ -114,7 +113,7 @@ export default function HomeView({
             {/* Right Column: Illustration */}
             <div className="relative mx-auto w-full max-w-lg lg:max-w-none animate-fade-left flex justify-center lg:justify-end">
               <img 
-                src={ecommerceImg} 
+                src="/assets/ecommerce.png"
                 alt="E-Commerce Platform Illustration" 
                 className="w-full h-auto object-contain max-h-[500px] drop-shadow-xl hover:scale-[1.02] transition-transform duration-500"
               />
