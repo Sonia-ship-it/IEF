@@ -152,6 +152,7 @@ export function AppProvider({ children }: { children: React.ReactNode }) {
   // Auth operations
   const login = (email: string, role: "customer" | "admin", name: string) => {
     setCurrentUser({
+      id: "usr-" + Date.now().toString(),
       name,
       email,
       role,
