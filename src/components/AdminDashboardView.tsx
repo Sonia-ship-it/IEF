@@ -28,6 +28,7 @@ import {
   Menu
 } from 'lucide-react';
 import { Product, Service, Order, User } from '../types';
+import { formatCurrency } from '../utils/currency';
 
 interface AdminDashboardViewProps {
   products: Product[];
@@ -340,42 +341,42 @@ export default function AdminDashboardView({
             <div className="space-y-6">
               {/* Stats Cards */}
               <div className="grid grid-cols-1 sm:grid-cols-2 xl:grid-cols-4 gap-4">
-                <div className="bg-white border border-zinc-200 rounded-md card-lift hover:border-zinc-300 transition-colors p-5 flex items-center justify-between">
+                <div className="group relative bg-white border border-zinc-200 rounded-md p-8 card-lift hover:border-zinc-300 transition-colors flex items-center justify-between">
                   <div>
                     <span className="text-[11px] font-bold text-zinc-400 uppercase tracking-wider block">Total Sales</span>
-                    <span className="text-2xl font-black text-zinc-900 mt-1 block">${totalSales.toFixed(2)}</span>
+                    <span className="text-2xl font-black text-zinc-900 mt-1 block">{formatCurrency(totalSales)}</span>
                   </div>
-                  <div className="rounded-lg bg-emerald-50 p-3 text-emerald-600">
+                  <div className="relative z-10 flex items-center justify-center w-12 h-12 rounded-md bg-zinc-900 text-white shadow-sm transition-transform group-hover:scale-110 duration-300">
                     <DollarSign className="h-5 w-5" />
                   </div>
                 </div>
 
-                <div className="bg-white border border-zinc-200 rounded-md card-lift hover:border-zinc-300 transition-colors p-5 flex items-center justify-between">
+                <div className="group relative bg-white border border-zinc-200 rounded-md p-8 card-lift hover:border-zinc-300 transition-colors flex items-center justify-between">
                   <div>
                     <span className="text-[11px] font-bold text-zinc-400 uppercase tracking-wider block">Pending Orders</span>
                     <span className="text-2xl font-black text-zinc-900 mt-1 block">{pendingOrdersCount}</span>
                   </div>
-                  <div className="rounded-lg bg-amber-50 p-3 text-amber-500">
+                  <div className="relative z-10 flex items-center justify-center w-12 h-12 rounded-md bg-zinc-900 text-white shadow-sm transition-transform group-hover:scale-110 duration-300">
                     <Clock className="h-5 w-5" />
                   </div>
                 </div>
 
-                <div className="bg-white border border-zinc-200 rounded-md card-lift hover:border-zinc-300 transition-colors p-5 flex items-center justify-between">
+                <div className="group relative bg-white border border-zinc-200 rounded-md p-8 card-lift hover:border-zinc-300 transition-colors flex items-center justify-between">
                   <div>
                     <span className="text-[11px] font-bold text-zinc-400 uppercase tracking-wider block">Completed</span>
                     <span className="text-2xl font-black text-zinc-900 mt-1 block">{completedOrdersCount}</span>
                   </div>
-                  <div className="rounded-lg bg-zinc-100 p-3 text-zinc-600">
+                  <div className="relative z-10 flex items-center justify-center w-12 h-12 rounded-md bg-zinc-900 text-white shadow-sm transition-transform group-hover:scale-110 duration-300">
                     <CheckCircle2 className="h-5 w-5" />
                   </div>
                 </div>
 
-                <div className="bg-white border border-zinc-200 rounded-md card-lift hover:border-zinc-300 transition-colors p-5 flex items-center justify-between">
+                <div className="group relative bg-white border border-zinc-200 rounded-md p-8 card-lift hover:border-zinc-300 transition-colors flex items-center justify-between">
                   <div>
                     <span className="text-[11px] font-bold text-zinc-400 uppercase tracking-wider block">Active Products</span>
                     <span className="text-2xl font-black text-zinc-900 mt-1 block">{products.length}</span>
                   </div>
-                  <div className="rounded-lg bg-zinc-100 p-3 text-zinc-600">
+                  <div className="relative z-10 flex items-center justify-center w-12 h-12 rounded-md bg-zinc-900 text-white shadow-sm transition-transform group-hover:scale-110 duration-300">
                     <Package className="h-5 w-5" />
                   </div>
                 </div>
@@ -402,7 +403,7 @@ export default function AdminDashboardView({
                             <span className="block text-[10px] text-zinc-400 font-mono">{o.id}</span>
                           </div>
                           <div className="text-right shrink-0 ml-3">
-                            <span className="block text-xs font-bold text-zinc-900">${o.totalAmount.toFixed(2)}</span>
+                            <span className="block text-xs font-bold text-zinc-900">{formatCurrency(o.totalAmount)}</span>
                             <span className={`text-[10px] font-bold uppercase ${
                               o.status === 'Pending' ? 'text-amber-500' :
                               o.status === 'Shipped' ? 'text-blue-500' :
@@ -698,7 +699,7 @@ export default function AdminDashboardView({
                             </div>
                           </td>
                           <td className="px-6 py-3 text-[10px] uppercase font-bold text-zinc-400">{p.category}</td>
-                          <td className="px-6 py-3 font-bold text-zinc-900">${p.price.toFixed(2)}</td>
+                          <td className="px-6 py-3 font-bold text-zinc-900">{formatCurrency(p.price)}</td>
                           <td className="px-6 py-3">
                             <span className={`font-bold ${p.stock <= 8 ? 'text-red-500' : 'text-zinc-700'}`}>{p.stock}</span>
                           </td>

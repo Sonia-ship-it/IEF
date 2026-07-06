@@ -47,52 +47,52 @@ export function AppProvider({ children }: { children: React.ReactNode }) {
   useEffect(() => {
     setIsClient(true);
     
-    const savedProducts = localStorage.getItem("ief_products");
+    const savedProducts = localStorage.getItem("ief_v2_products");
     if (savedProducts) setProducts(JSON.parse(savedProducts));
     
-    const savedServices = localStorage.getItem("ief_services");
+    const savedServices = localStorage.getItem("ief_v2_services");
     if (savedServices) setServices(JSON.parse(savedServices));
     
-    const savedCart = localStorage.getItem("ief_cart");
+    const savedCart = localStorage.getItem("ief_v2_cart");
     if (savedCart) setCart(JSON.parse(savedCart));
     
-    const savedWishlist = localStorage.getItem("ief_wishlist");
+    const savedWishlist = localStorage.getItem("ief_v2_wishlist");
     if (savedWishlist) setWishlist(JSON.parse(savedWishlist));
     
-    const savedOrders = localStorage.getItem("ief_orders");
+    const savedOrders = localStorage.getItem("ief_v2_orders");
     if (savedOrders) setOrders(JSON.parse(savedOrders));
     
-    const savedUser = localStorage.getItem("ief_user");
+    const savedUser = localStorage.getItem("ief_v2_user");
     if (savedUser) setCurrentUser(JSON.parse(savedUser));
   }, []);
 
   // Save to LocalStorage on change (only after initial mount)
   useEffect(() => {
-    if (isClient) localStorage.setItem("ief_products", JSON.stringify(products));
+    if (isClient) localStorage.setItem("ief_v2_products", JSON.stringify(products));
   }, [products, isClient]);
 
   useEffect(() => {
-    if (isClient) localStorage.setItem("ief_services", JSON.stringify(services));
+    if (isClient) localStorage.setItem("ief_v2_services", JSON.stringify(services));
   }, [services, isClient]);
 
   useEffect(() => {
-    if (isClient) localStorage.setItem("ief_cart", JSON.stringify(cart));
+    if (isClient) localStorage.setItem("ief_v2_cart", JSON.stringify(cart));
   }, [cart, isClient]);
 
   useEffect(() => {
-    if (isClient) localStorage.setItem("ief_wishlist", JSON.stringify(wishlist));
+    if (isClient) localStorage.setItem("ief_v2_wishlist", JSON.stringify(wishlist));
   }, [wishlist, isClient]);
 
   useEffect(() => {
-    if (isClient) localStorage.setItem("ief_orders", JSON.stringify(orders));
+    if (isClient) localStorage.setItem("ief_v2_orders", JSON.stringify(orders));
   }, [orders, isClient]);
 
   useEffect(() => {
     if (isClient) {
       if (currentUser) {
-        localStorage.setItem("ief_user", JSON.stringify(currentUser));
+        localStorage.setItem("ief_v2_user", JSON.stringify(currentUser));
       } else {
-        localStorage.removeItem("ief_user");
+        localStorage.removeItem("ief_v2_user");
       }
     }
   }, [currentUser, isClient]);

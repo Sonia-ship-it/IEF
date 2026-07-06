@@ -18,6 +18,7 @@ import {
 import { useAppContext } from '../context/AppContext';
 import { Product } from '../types';
 import { TESTIMONIALS, SHOPPING_STEPS } from '../data';
+import { formatCurrency } from '../utils/currency';
 import Image from 'next/image';
 
 export default function Home() {
@@ -93,6 +94,7 @@ export default function Home() {
                   src="/assets/ecommerce.png" 
                   alt="E-Commerce Platform Illustration" 
                   fill
+                  sizes="(max-width: 768px) 100vw, (max-width: 1200px) 50vw, 33vw"
                   className="object-contain drop-shadow-xl hover:scale-[1.02] transition-transform duration-500"
                   priority
                 />
@@ -267,6 +269,7 @@ export default function Home() {
                       src={testi.avatar}
                       alt={testi.name}
                       fill
+                      sizes="(max-width: 768px) 100vw, (max-width: 1200px) 50vw, 33vw"
                       className="object-cover"
                     />
                   </div>
@@ -307,6 +310,7 @@ export function ProductCard({ product, isInWishlist, onProductClick, onAddToCart
           src={product.images[0]}
           alt={product.name}
           fill
+          sizes="(max-width: 768px) 100vw, (max-width: 1200px) 50vw, 33vw"
           className="object-cover group-hover:scale-105 transition-transform duration-500"
           unoptimized
         />
@@ -345,7 +349,7 @@ export function ProductCard({ product, isInWishlist, onProductClick, onAddToCart
         </h3>
         <div className="mt-5 pt-4 border-t border-zinc-100 flex items-center justify-between">
           <span className="text-lg font-black text-zinc-950">
-            ${product.price.toFixed(2)}
+            {formatCurrency(product.price)}
           </span>
           <button
             onClick={onAddToCart}

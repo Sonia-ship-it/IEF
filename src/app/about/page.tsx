@@ -139,7 +139,7 @@ export default function About() {
           ].map((member, idx) => (
             <div key={idx} className="group relative bg-white border border-zinc-200 rounded-md p-8 text-center card-lift hover:border-zinc-300 transition-colors">
               <div className="h-32 w-32 rounded-full overflow-hidden mx-auto mb-6 border-2 border-zinc-200 relative">
-                <Image src={member.img} alt={member.name} fill className="object-cover" />
+                <Image src={member.img} alt={member.name} fill sizes="(max-width: 768px) 100vw, (max-width: 1200px) 50vw, 33vw" className="object-cover" />
               </div>
               <h4 className="font-black text-zinc-950 uppercase text-base tracking-wide">{member.name}</h4>
               <p className="text-xs font-bold text-zinc-900 uppercase tracking-widest mt-2 mb-4" dangerouslySetInnerHTML={{ __html: member.role }} />

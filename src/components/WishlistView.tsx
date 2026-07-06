@@ -11,6 +11,7 @@ import {
   ArrowRight
 } from 'lucide-react';
 import { Product } from '../types';
+import { formatCurrency } from '../utils/currency';
 
 interface WishlistViewProps {
   wishlist: Product[];
@@ -107,7 +108,7 @@ export default function WishlistView({
               <div className="mt-4 space-y-3 pt-3 border-t border-zinc-100">
                 <div className="flex items-center justify-between">
                   <span className="text-sm font-black text-zinc-950">
-                    ${product.price.toFixed(2)}
+                    {formatCurrency(product.price)}
                   </span>
                   <span className="text-[10px] text-zinc-400 font-semibold">{product.stock > 0 ? 'In Stock' : 'Out of Stock'}</span>
                 </div>

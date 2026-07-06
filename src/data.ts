@@ -10,7 +10,7 @@ export const INITIAL_PRODUCTS: Product[] = [
   {
     id: 'elec-1',
     name: 'Hikvision Smart PTZ Wifi Security Camera',
-    price: 89.99,
+    price: 89990,
     description: 'High-definition 360-degree coverage CCTV camera with smart motion tracking, night vision, and active defense features. Connects seamlessly to your mobile phone for live streaming.',
     category: 'Electronics',
     subcategory: 'CCTV Cameras',
@@ -34,7 +34,7 @@ export const INITIAL_PRODUCTS: Product[] = [
   {
     id: 'elec-2',
     name: 'Dahua Dome Pro CCTV Camera',
-    price: 59.99,
+    price: 59990,
     description: 'Professional indoor/outdoor vandal-resistant dome security camera. Offers stellar night vision up to 30 meters and smart IR technology to prevent overexposure.',
     category: 'Electronics',
     subcategory: 'CCTV Cameras',
@@ -57,7 +57,7 @@ export const INITIAL_PRODUCTS: Product[] = [
   {
     id: 'elec-3',
     name: 'Audio-Technica Pro Studio Wireless Headphones',
-    price: 149.99,
+    price: 149990,
     description: 'Audiophile-grade studio headphones engineered for pure, high-fidelity sound. Features active noise cancellation, extra soft leather earcups, and up to 50 hours of battery life.',
     category: 'Electronics',
     subcategory: 'Headphones',
@@ -80,7 +80,7 @@ export const INITIAL_PRODUCTS: Product[] = [
   {
     id: 'elec-4',
     name: 'Vintage Portable FM/AM Radio',
-    price: 34.99,
+    price: 34990,
     description: 'A charming retro-style mini radio combining classic aesthetics with modern reception stability. Features a gorgeous mahogany wood accent, rechargeable battery, and auxiliary input.',
     category: 'Electronics',
     subcategory: 'Mini Radios',
@@ -102,7 +102,7 @@ export const INITIAL_PRODUCTS: Product[] = [
   {
     id: 'elec-5',
     name: 'Minimalist Quartz Black Mesh Watch',
-    price: 119.99,
+    price: 119990,
     description: 'An elegant, ultra-thin luxury timepiece with a clean matte-black finish and breathable stainless steel mesh strap. The epitome of modern minimalist style.',
     category: 'Electronics',
     subcategory: 'Watches',
@@ -127,7 +127,7 @@ export const INITIAL_PRODUCTS: Product[] = [
   {
     id: 'clot-1',
     name: 'Organic Cotton Oversized Tee',
-    price: 24.99,
+    price: 24990,
     description: 'Crafted from ultra-soft 100% organic heavy cotton. Features a relaxed drop-shoulder silhouette, durable double-needle stitching, and a premium natural drape.',
     category: 'Clothing & Fashion',
     subcategory: 'T-Shirts',
@@ -149,7 +149,7 @@ export const INITIAL_PRODUCTS: Product[] = [
   {
     id: 'clot-2',
     name: 'Classic Linen Button-Down Shirt',
-    price: 39.99,
+    price: 39990,
     description: 'Woven from airy, lightweight French linen, perfect for warm weather or elegant layering. Designed with a structured button-down collar and a classic curved hem.',
     category: 'Clothing & Fashion',
     subcategory: "Men's Shirts",
@@ -170,7 +170,7 @@ export const INITIAL_PRODUCTS: Product[] = [
   {
     id: 'clot-3',
     name: 'Slim Fit Stretch Chino Trousers',
-    price: 49.99,
+    price: 49990,
     description: 'The ultimate versatile trousers. Tailored from a comfortable cotton-twill blend with integrated spandex for 4-way flexibility. Transition effortlessly from office to evening.',
     category: 'Clothing & Fashion',
     subcategory: 'Trousers',
@@ -190,7 +190,7 @@ export const INITIAL_PRODUCTS: Product[] = [
   {
     id: 'clot-4',
     name: 'Tech Fleece Urban Tracksuit',
-    price: 79.99,
+    price: 79990,
     description: 'A cozy and sleek two-piece matching tracksuit set. The soft double-sided brushed fleece provides superior warmth without adding bulk. Sleek zippered pockets keep items secure.',
     category: 'Clothing & Fashion',
     subcategory: 'Jogging / Tracksuits',
@@ -211,7 +211,7 @@ export const INITIAL_PRODUCTS: Product[] = [
   {
     id: 'clot-5',
     name: 'Ribbed Knit Casual Tank Top',
-    price: 19.99,
+    price: 19990,
     description: 'A fitted, ribbed-knit sleeveless top designed with a clean high neckline and ultra-stretch cotton fibers. Perfect for daily standalone wear or sleek jacket layering.',
     category: 'Clothing & Fashion',
     subcategory: 'Tops',
@@ -231,7 +231,7 @@ export const INITIAL_PRODUCTS: Product[] = [
   {
     id: 'clot-6',
     name: 'Sleek Coordinated Weekend Set',
-    price: 99.99,
+    price: 99990,
     description: 'A premium, custom-styled complete outfit featuring a relaxed utility linen jacket combined with matching relaxed-fit tailored trousers in soft sand-beige.',
     category: 'Clothing & Fashion',
     subcategory: 'Complete Outfits',
@@ -252,7 +252,7 @@ export const INITIAL_PRODUCTS: Product[] = [
   {
     id: 'clot-7',
     name: 'Retro Football Fan Jersey',
-    price: 45.00,
+    price: 45000,
     description: 'Breathable, elite-engineered fan jersey commemorating classic athletic histories. Beautiful woven brand details, high-wicking fabrics, and vibrant permanent sublimated colors.',
     category: 'Clothing & Fashion',
     subcategory: 'Jerseys',
@@ -274,7 +274,7 @@ export const INITIAL_PRODUCTS: Product[] = [
   {
     id: 'jewel-1',
     name: '18K Gold Plated Minimalist Chain',
-    price: 64.99,
+    price: 64989,
     description: 'An exquisitely simple necklace forged from anti-tarnish 316L stainless steel, generously bathed in double-layered 18k real gold. Offers an adjustable clasp for perfect layering height.',
     category: 'Jewelry',
     subcategory: 'Necklaces',
@@ -298,7 +298,7 @@ export const INITIAL_PRODUCTS: Product[] = [
   {
     id: 'foot-1',
     name: "Handcrafted Leather Chelsea Boots",
-    price: 139.99,
+    price: 139990,
     description: "Constructed with premium full-grain Italian calfskin leather. Features standard elastic side gussets, full interior leather lining, and a highly durable Goodyear-welted rubber sole.",
     category: 'Footwear',
     subcategory: "Men’s Shoes",
@@ -319,7 +319,7 @@ export const INITIAL_PRODUCTS: Product[] = [
   {
     id: 'foot-2',
     name: 'Active Cushion Running Shoes',
-    price: 89.99,
+    price: 89990,
     description: 'Engineered for lightweight bounce and optimal support during high-mileage runs or long active days. Features a highly breathable knitted upper and shock-absorbing foam midsoles.',
     category: 'Footwear',
     subcategory: "Women’s Shoes",
@@ -350,7 +350,7 @@ export const INITIAL_SERVICES: Service[] = [
       'Seamless mobile and desktop live-viewer application setup',
       'Full 1-year hardware warranty and post-installation support'
     ],
-    priceInfo: 'From $150 (depends on camera count)',
+    priceInfo: 'From RWF 150000 (depends on camera count)',
     icon: 'Camera',
     image: 'https://images.unsplash.com/photo-1557597774-9d273605dfa9?auto=format&fit=crop&w=600&q=80'
   },
@@ -378,7 +378,7 @@ export const INITIAL_SERVICES: Service[] = [
       'Local server racks and switch configurations',
       'Guest portals, firewall rules, and VPN setup for secure remote work'
     ],
-    priceInfo: 'From $200 (consultation included)',
+    priceInfo: 'From RWF 200000 (consultation included)',
     icon: 'Globe',
     image: 'https://images.unsplash.com/photo-1544197150-b99a580bb7a8?auto=format&fit=crop&w=600&q=80'
   },
@@ -406,7 +406,7 @@ export const INITIAL_SERVICES: Service[] = [
       'Easy-to-use content management systems (CMS)',
       'Ongoing cloud hosting maintenance and SEO optimizations'
     ],
-    priceInfo: 'From $500 (flexible installments)',
+    priceInfo: 'From RWF 500000 (flexible installments)',
     icon: 'Code',
     image: 'https://images.unsplash.com/photo-1460925895917-afdab827c52f?auto=format&fit=crop&w=600&q=80'
   }

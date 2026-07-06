@@ -5,7 +5,7 @@
 
 import React from 'react';
 import { 
-  ShoppingBag, 
+  ShoppingCart, 
   Trash2, 
   CreditCard, 
   Truck, 
@@ -13,6 +13,7 @@ import {
   ArrowRight
 } from 'lucide-react';
 import { CartItem } from '../types';
+import { formatCurrency } from '../utils/currency';
 
 interface CartViewProps {
   cart: CartItem[];
@@ -48,7 +49,7 @@ export default function CartView({
     return (
       <div className="mx-auto max-w-xl px-6 py-24 text-center font-sans text-zinc-800 bg-white" id="empty-cart-view">
         <div className="flex h-20 w-20 items-center justify-center rounded-md bg-zinc-100 text-zinc-400 mx-auto">
-          <ShoppingBag className="h-10 w-10" />
+          <ShoppingCart className="h-10 w-10" />
         </div>
         <h1 className="mt-6 text-xl font-black tracking-tight text-zinc-950">Your Cart is Empty</h1>
         <p className="mt-2 text-sm text-zinc-500">
@@ -88,7 +89,7 @@ export default function CartView({
                   <h3 className="text-sm font-bold text-zinc-900 hover:text-zinc-600 cursor-pointer line-clamp-1 max-w-[260px] transition-colors" onClick={() => setView('product-detail')}>
                     {item.product.name}
                   </h3>
-                  <p className="text-xs text-zinc-500 mt-1">Unit: ${item.product.price.toFixed(2)}</p>
+                  <p className="text-xs text-zinc-500 mt-1">Unit: {formatCurrency(item.product.price)}</p>
                 </div>
               </div>
 
@@ -109,7 +110,7 @@ export default function CartView({
 
                 {/* Price */}
                 <span className="text-sm font-black text-zinc-950 min-w-[72px] text-right">
-                  ${(item.product.price * item.quantity).toFixed(2)}
+                  {formatCurrency(item.product.price * item.quantity)}
                 </span>
 
                 {/* Remove */}
@@ -128,7 +129,7 @@ export default function CartView({
           <div className="space-y-3.5 text-xs">
             <div className="flex justify-between">
               <span className="text-zinc-500">Subtotal</span>
-              <span className="font-bold text-zinc-900">${subtotal.toFixed(2)}</span>
+              <span className="font-bold text-zinc-900">{formatCurrency(subtotal)}</span>
             </div>
             <div className="flex justify-between items-center">
               <span className="text-zinc-500 flex items-center gap-1.5">
@@ -139,20 +140,20 @@ export default function CartView({
                 {deliveryFee === 0 ? (
                   <span className="text-zinc-900 font-bold">Free</span>
                 ) : (
-                  `$${deliveryFee.toFixed(2)}`
+                  formatCurrency(deliveryFee)
                 )}
               </span>
             </div>
 
             {subtotal < 150 && (
               <div className="rounded-md bg-white p-3 border border-zinc-200 text-xs text-zinc-600 leading-normal">
-                Add <strong className="text-zinc-900">${(150 - subtotal).toFixed(2)}</strong> more to unlock <strong className="text-zinc-900">Free Delivery</strong>!
+                Add <strong className="text-zinc-900">{formatCurrency(150 - subtotal)}</strong> more to unlock <strong className="text-zinc-900">Free Delivery</strong>!
               </div>
             )}
 
             <div className="border-t border-zinc-200 pt-3.5 flex justify-between text-sm font-black">
               <span className="text-zinc-950 uppercase tracking-wide">Grand Total</span>
-              <span className="text-zinc-950">${total.toFixed(2)}</span>
+              <span className="text-zinc-950">{formatCurrency(total)}</span>
             </div>
           </div>
 

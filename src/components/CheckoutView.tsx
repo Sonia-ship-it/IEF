@@ -13,6 +13,7 @@ import {
   Coins
 } from 'lucide-react';
 import { CartItem, Order, User } from '../types';
+import { formatCurrency } from '../utils/currency';
 
 interface CheckoutViewProps {
   cart: CartItem[];
@@ -163,7 +164,7 @@ export default function CheckoutView({
                 <div>
                   <label className={labelClass}>MoMo Wallet Number</label>
                   <input type="tel" required={paymentMethod === 'Mobile Money'} value={momoNumber} onChange={(e) => setMomoNumber(e.target.value)} placeholder="+250 78X XXX XXX" className={inputClass} />
-                  <p className="text-[10px] text-zinc-400 mt-1.5">A push prompt will be sent to this number to approve ${total.toFixed(2)}.</p>
+                  <p className="text-[10px] text-zinc-400 mt-1.5">A push prompt will be sent to this number to approve {formatCurrency(total)}.</p>
                 </div>
               </div>
             )}
@@ -190,7 +191,7 @@ export default function CheckoutView({
             {paymentMethod === 'Cash on Delivery' && (
               <div className="rounded-md bg-zinc-50 p-4 border border-zinc-200">
                 <p className="text-xs leading-relaxed text-zinc-500">
-                  Pay cash or push local mobile money to our dispatcher on site. We recommend preparing the exact amount: <strong className="text-zinc-900">${total.toFixed(2)}</strong>.
+                  Pay cash or push local mobile money to our dispatcher on site. We recommend preparing the exact amount: <strong className="text-zinc-900">{formatCurrency(total)}</strong>.
                 </p>
               </div>
             )}
@@ -207,9 +208,9 @@ export default function CheckoutView({
                 <img src={item.product.images[0]} alt="" className="h-10 w-10 object-cover rounded-md border border-zinc-200 bg-white" referrerPolicy="no-referrer" />
                 <div className="flex-1 min-w-0">
                   <h4 className="text-[11px] font-bold text-zinc-900 truncate">{item.product.name}</h4>
-                  <p className="text-[10px] text-zinc-400 mt-0.5">Qty: {item.quantity} &times; ${item.product.price.toFixed(2)}</p>
+                  <p className="text-[10px] text-zinc-400 mt-0.5">Qty: {item.quantity} &times; {formatCurrency(item.product.price)}</p>
                 </div>
-                <span className="text-xs font-bold text-zinc-900">${(item.product.price * item.quantity).toFixed(2)}</span>
+                <span className="text-xs font-bold text-zinc-900">{formatCurrency(item.product.price * item.quantity)}</span>
               </div>
             ))}
           </div>
@@ -217,15 +218,15 @@ export default function CheckoutView({
           <div className="space-y-3 text-xs border-t border-zinc-200 pt-4">
             <div className="flex justify-between">
               <span className="text-zinc-500">Subtotal</span>
-              <span className="font-bold text-zinc-900">${subtotal.toFixed(2)}</span>
+              <span className="font-bold text-zinc-900">{formatCurrency(subtotal)}</span>
             </div>
             <div className="flex justify-between">
               <span className="text-zinc-500">Delivery</span>
-              <span className="font-bold text-zinc-900">{deliveryFee === 0 ? 'Free' : `$${deliveryFee.toFixed(2)}`}</span>
+              <span className="font-bold text-zinc-900">{deliveryFee === 0 ? 'Free' : formatCurrency(deliveryFee)}</span>
             </div>
             <div className="border-t border-zinc-200 pt-3 flex justify-between text-sm font-black">
               <span className="text-zinc-950 uppercase tracking-wide">Total</span>
-              <span className="text-zinc-950">${total.toFixed(2)}</span>
+              <span className="text-zinc-950">{formatCurrency(total)}</span>
             </div>
           </div>
 

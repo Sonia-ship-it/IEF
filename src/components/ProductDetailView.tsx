@@ -16,6 +16,7 @@ import {
   RefreshCcw 
 } from 'lucide-react';
 import { Product } from '../types';
+import { formatCurrency } from '../utils/currency';
 
 interface ProductDetailViewProps {
   product: Product;
@@ -143,7 +144,7 @@ export default function ProductDetailView({
           {/* Price & Stock */}
           <div className="mt-5 flex items-baseline gap-6 border-y border-zinc-150 py-5">
             <span className="text-2xl font-black text-zinc-950">
-              ${product.price.toFixed(2)}
+              {formatCurrency(product.price)}
             </span>
             <div className="flex items-center gap-2">
               <span className={`inline-flex h-2 w-2 rounded-full ${product.stock > 0 ? 'bg-zinc-900 animate-pulse' : 'bg-red-500'}`} />
@@ -304,7 +305,7 @@ export default function ProductDetailView({
                     </h3>
                     <div className="mt-3 flex items-center justify-between">
                       <span className="text-sm font-black text-zinc-900">
-                        ${p.price.toFixed(2)}
+                        {formatCurrency(p.price)}
                       </span>
                     </div>
                   </div>

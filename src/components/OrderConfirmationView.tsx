@@ -8,11 +8,12 @@ import {
   CheckCircle, 
   MapPin, 
   Calendar, 
-  ShoppingBag, 
+  ShoppingCart, 
   Truck, 
   FileSpreadsheet
 } from 'lucide-react';
 import { Order } from '../types';
+import { formatCurrency } from '../utils/currency';
 
 interface OrderConfirmationViewProps {
   order: Order | null;
@@ -152,7 +153,7 @@ export default function OrderConfirmationView({
           </dl>
           <div className="border-t border-zinc-100 pt-4 flex justify-between items-center">
             <span className="text-[10px] font-bold text-zinc-400 uppercase tracking-wider">Total Paid</span>
-            <span className="text-xl font-black text-zinc-950">${order.totalAmount.toFixed(2)}</span>
+            <span className="text-xl font-black text-zinc-950">{formatCurrency(order.totalAmount)}</span>
           </div>
         </div>
       </div>
@@ -166,9 +167,9 @@ export default function OrderConfirmationView({
               <img src={item.image} alt="" className="h-11 w-11 object-cover rounded-md border border-zinc-200 bg-zinc-50" referrerPolicy="no-referrer" />
               <div className="flex-1 min-w-0">
                 <h4 className="text-xs font-bold text-zinc-900 truncate">{item.productName}</h4>
-                <p className="text-[10px] text-zinc-400 mt-0.5">Qty: {item.quantity} &times; ${item.price.toFixed(2)}</p>
+                <p className="text-[10px] text-zinc-400 mt-0.5">Qty: {item.quantity} &times; {formatCurrency(item.price)}</p>
               </div>
-              <span className="text-xs font-black text-zinc-900">${(item.price * item.quantity).toFixed(2)}</span>
+              <span className="text-xs font-black text-zinc-900">{formatCurrency(item.price * item.quantity)}</span>
             </div>
           ))}
         </div>
@@ -177,7 +178,7 @@ export default function OrderConfirmationView({
       {/* CTAs */}
       <div className="flex flex-col sm:flex-row gap-3 items-center justify-center">
         <button onClick={() => setView('shop')} className="btn-primary w-full sm:w-auto justify-center">
-          <ShoppingBag className="h-4 w-4" />
+          <ShoppingCart className="h-4 w-4" />
           Browse More Products
         </button>
         <button onClick={() => setView('auth')} className="btn-outline w-full sm:w-auto justify-center">

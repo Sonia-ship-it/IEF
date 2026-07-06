@@ -15,6 +15,7 @@ import {
   List
 } from 'lucide-react';
 import { Product } from '../types';
+import { formatCurrency } from '../utils/currency';
 
 interface ShopViewProps {
   products: Product[];
@@ -304,7 +305,7 @@ export default function ShopView({
                       onClick={() => handleProductClick(product)}
                     >{product.name}</h3>
                     <div className="mt-4 pt-3 border-t border-zinc-100 flex items-center justify-between">
-                      <span className="text-sm font-black text-zinc-950">${product.price.toFixed(2)}</span>
+                      <span className="text-sm font-black text-zinc-950">{formatCurrency(product.price)}</span>
                       <button
                         onClick={() => addToCart(product)}
                         className="flex h-8 w-8 items-center justify-center rounded-md bg-zinc-900 text-white hover:bg-zinc-800 transition-colors"
@@ -337,7 +338,7 @@ export default function ShopView({
                       <p className="mt-1.5 text-xs text-zinc-500 line-clamp-2 leading-relaxed">{product.description}</p>
                     </div>
                     <div className="mt-3 flex items-center justify-between">
-                      <span className="text-sm font-black text-zinc-950">${product.price.toFixed(2)}</span>
+                      <span className="text-sm font-black text-zinc-950">{formatCurrency(product.price)}</span>
                       <div className="flex items-center gap-2">
                         <button
                           onClick={() => addToWishlist(product)}

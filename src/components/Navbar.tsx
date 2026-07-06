@@ -4,7 +4,7 @@ import React, { useState, useEffect } from 'react';
 import Link from 'next/link';
 import { usePathname } from 'next/navigation';
 import {
-  ShoppingBag,
+  ShoppingCart,
   Heart,
   Menu,
   X,
@@ -129,7 +129,7 @@ export default function Navbar() {
               }`}
               aria-label="Cart"
             >
-              <ShoppingBag className="h-5 w-5" />
+              <ShoppingCart className="h-5 w-5" />
               {cartCount > 0 && (
                 <span className="absolute -top-0.5 -right-0.5 flex h-4.5 w-4.5 items-center justify-center rounded-full bg-zinc-900 text-[9px] font-bold text-white border-2 border-white">
                   {cartCount}
