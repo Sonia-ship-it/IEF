@@ -16,6 +16,9 @@ import {
 } from 'lucide-react';
 import { Product } from '../types';
 import { formatCurrency } from '../utils/currency';
+import { useLanguage } from '../i18n/LanguageContext';
+import { getProductImage, FALLBACK_PRODUCT_IMAGE } from '../utils/image';
+import { SafeImg } from './SafeImage';
 
 interface ShopViewProps {
   products: Product[];
@@ -52,6 +55,7 @@ export default function ShopView({
 }: ShopViewProps) {
   const [mobileFiltersOpen, setMobileFiltersOpen] = useState(false);
   const [viewMode, setViewMode] = useState<'grid' | 'list'>('grid');
+  const { t } = useLanguage();
 
   // Categories structure mapping
   const CATEGORIES_MAP: Record<string, string[]> = {
@@ -121,15 +125,15 @@ export default function ShopView({
       <div className="relative border-b border-zinc-200 py-12 px-6 bg-pattern-maze text-zinc-900">
         <div className="max-w-7xl mx-auto flex flex-col md:flex-row md:items-center md:justify-between gap-4">
           <div>
-            <h1 className="text-3xl font-black tracking-tight text-zinc-950">Product Catalogue</h1>
-            <p className="mt-1 text-xs text-zinc-500 font-medium">Showing {filteredProducts.length} of {products.length} elegant items</p>
+            <h1 className="text-3xl font-black tracking-tight text-zinc-950">{t('shop.title')}</h1>
+            <p className="mt-1 text-xs text-zinc-500 font-medium">{t('common.filter')}: {filteredProducts.length} / {products.length}</p>
           </div>
           {/* Live Search */}
           <div className="relative max-w-sm w-full">
             <Search className="absolute top-3 left-3.5 h-4 w-4 text-zinc-400" />
             <input
               type="text"
-              placeholder="Search fashion or electronics..."
+              placeholder={t('common.search')}
               value={searchQuery}
               onChange={(e) => setSearchQuery(e.target.value)}
               className="w-full rounded-md bg-zinc-50 border border-zinc-200 py-2.5 pl-10 pr-9 text-xs text-zinc-900 outline-none focus:border-zinc-900 focus:bg-white transition-colors"
@@ -151,7 +155,7 @@ export default function ShopView({
             
             {/* Category selection */}
             <div>
-              <h3 className="text-[10px] font-black uppercase tracking-widest text-zinc-400 mb-3">Categories</h3>
+              <h3 className="text-[10px] font-black uppercase tracking-widest text-zinc-400 mb-3">{t('shop.allCategories')}</h3>
               <div className="space-y-1">
                 {categories.map((cat) => {
                   const isSelected = selectedCategory === cat;
@@ -165,7 +169,7 @@ export default function ShopView({
                           : 'text-zinc-600 hover:bg-white hover:text-zinc-950 border border-transparent hover:border-zinc-200'
                       }`}
                     >
-                      <span>{cat}</span>
+                      <span>{t(`cat.${cat}`, cat)}</span>
                     </button>
                   );
                 })}
@@ -175,7 +179,7 @@ export default function ShopView({
             {/* Subcategory */}
             {selectedCategory !== 'All' && subcategories.length > 0 && (
               <div className="border-t border-zinc-200 pt-5">
-                <h3 className="text-[10px] font-black uppercase tracking-widest text-zinc-400 mb-3">Refine</h3>
+                <h3 className="text-[10px] font-black uppercase tracking-widest text-zinc-400 mb-3">{t('common.refine')}</h3>
                 <div className="space-y-0.5">
                   <button
                     onClick={() => setSelectedSubcategory('All')}
@@ -183,7 +187,7 @@ export default function ShopView({
                       selectedSubcategory === 'All' ? 'text-zinc-900 font-bold' : 'text-zinc-500 hover:text-zinc-900'
                     }`}
                   >
-                    All {selectedCategory}
+                    {t('common.allCategory', `All ${selectedCategory}`, { category: t(`cat.${selectedCategory}`, selectedCategory) })}
                   </button>
                   {subcategories.map((sub) => (
                     <button
@@ -193,7 +197,7 @@ export default function ShopView({
                         selectedSubcategory === sub ? 'text-zinc-900 font-bold' : 'text-zinc-500 hover:text-zinc-950'
                       }`}
                     >
-                      {sub}
+                      {t(`cat.${sub}`, sub)}
                     </button>
                   ))}
                 </div>
@@ -202,17 +206,17 @@ export default function ShopView({
 
             {/* Sort */}
             <div className="border-t border-zinc-200 pt-5">
-              <h3 className="text-[10px] font-black uppercase tracking-widest text-zinc-400 mb-3">Sort By</h3>
+              <h3 className="text-[10px] font-black uppercase tracking-widest text-zinc-400 mb-3">{t('shop.sortBy')}</h3>
               <select
                 value={sortOption}
                 onChange={(e) => setSortOption(e.target.value)}
                 className="w-full rounded-md bg-white border border-zinc-200 px-3 py-2 text-xs font-semibold text-zinc-700 outline-none focus:border-zinc-900 transition-colors"
               >
-                <option value="featured">Featured Selections</option>
-                <option value="price-low-high">Price: Low to High</option>
-                <option value="price-high-low">Price: High to Low</option>
-                <option value="rating">Top Customer Rated</option>
-                <option value="bestseller">Best Selling First</option>
+                <option value="featured">{t('shop.featured')}</option>
+                <option value="price-low-high">{t('shop.priceAsc')}</option>
+                <option value="price-high-low">{t('shop.priceDesc')}</option>
+                <option value="rating">{t('shop.rating')}</option>
+                <option value="bestseller">{t('shop.newest')}</option>
               </select>
             </div>
 
@@ -229,7 +233,7 @@ export default function ShopView({
               className="flex items-center gap-2 rounded-md border border-zinc-200 px-4 py-2 text-xs font-bold text-zinc-700 hover:bg-zinc-50 transition-colors"
             >
               <SlidersHorizontal className="h-3.5 w-3.5" />
-              Filters &amp; Sort
+              {t('common.filtersSort')}
             </button>
             <div className="flex items-center gap-1.5">
               <button onClick={() => setViewMode('grid')} className={`p-2 rounded-md transition-colors border ${viewMode === 'grid' ? 'bg-zinc-900 border-zinc-900 text-white' : 'border-zinc-200 text-zinc-400 hover:bg-zinc-50'}`}>
@@ -243,7 +247,7 @@ export default function ShopView({
 
           {/* Desktop view-mode toggle */}
           <div className="hidden lg:flex items-center justify-end gap-1.5 mb-6">
-            <span className="text-xs text-zinc-400 font-semibold mr-1.5">View:</span>
+            <span className="text-xs text-zinc-400 font-semibold mr-1.5">{t('common.view')}:</span>
             <button onClick={() => setViewMode('grid')} className={`p-2 rounded-md transition-colors border ${viewMode === 'grid' ? 'bg-zinc-900 border-zinc-900 text-white' : 'border-zinc-200 text-zinc-400 hover:bg-zinc-50'}`}>
               <LayoutGrid className="h-4 w-4" />
             </button>
@@ -255,13 +259,13 @@ export default function ShopView({
           {filteredProducts.length === 0 ? (
             <div className="text-center py-20 rounded-md border border-dashed border-zinc-200 bg-zinc-50">
               <span className="text-4xl">🔍</span>
-              <h3 className="mt-4 text-base font-bold text-zinc-900">No products found</h3>
-              <p className="mt-2 text-xs text-zinc-500 max-w-sm mx-auto">We couldn't find matches. Try resetting filters.</p>
+              <h3 className="mt-4 text-base font-bold text-zinc-900">{t('shop.noResults')}</h3>
+              <p className="mt-2 text-xs text-zinc-500 max-w-sm mx-auto">{t('shop.noResultsMsg')}</p>
               <button
                 onClick={() => { setSelectedCategory('All'); setSelectedSubcategory('All'); setSearchQuery(''); setSortOption('featured'); }}
                 className="mt-5 btn-primary"
               >
-                Clear All Filters
+                {t('shop.clearFilters')}
               </button>
             </div>
           ) : viewMode === 'grid' ? (
@@ -272,14 +276,14 @@ export default function ShopView({
                     className="aspect-square w-full overflow-hidden bg-zinc-50 border-b border-zinc-200 relative cursor-pointer"
                     onClick={() => handleProductClick(product)}
                   >
-                    <img
-                      src={product.images[0]}
-                      alt={product.name}
+                    <SafeImg
+                      src={getProductImage(product.images)}
+                      fallback={FALLBACK_PRODUCT_IMAGE}
+                      alt={t(`products.${product.id}.name`, product.name)}
                       className="h-full w-full object-cover group-hover:scale-102 transition-transform duration-200"
-                      referrerPolicy="no-referrer"
                     />
                     {product.stock <= 8 && (
-                      <span className="absolute top-2 left-2 rounded-md bg-zinc-900 px-2 py-0.5 text-[8px] font-bold text-white uppercase tracking-wider">Low Stock</span>
+                      <span className="absolute top-2 left-2 rounded-md bg-zinc-900 px-2 py-0.5 text-[8px] font-bold text-white uppercase tracking-wider">{t('common.lowStock')}</span>
                     )}
                     <button
                       onClick={(e) => { e.stopPropagation(); addToWishlist(product); }}
@@ -294,7 +298,7 @@ export default function ShopView({
                   </div>
                   <div className="flex flex-1 flex-col p-4">
                     <div className="flex items-center justify-between text-[10px] text-zinc-400 mb-1.5">
-                      <span>{product.subcategory}</span>
+                      <span>{t(`cat.${product.subcategory}`, product.subcategory)}</span>
                       <div className="flex items-center gap-0.5 text-zinc-700">
                         <Star className="h-3 w-3 fill-current" />
                         <span className="font-bold text-xs">{product.rating}</span>
@@ -303,7 +307,7 @@ export default function ShopView({
                     <h3
                       className="text-xs font-bold text-zinc-900 line-clamp-2 hover:text-zinc-600 cursor-pointer min-h-[36px]"
                       onClick={() => handleProductClick(product)}
-                    >{product.name}</h3>
+                    >{t(`products.${product.id}.name`, product.name)}</h3>
                     <div className="mt-4 pt-3 border-t border-zinc-100 flex items-center justify-between">
                       <span className="text-sm font-black text-zinc-950">{formatCurrency(product.price)}</span>
                       <button
@@ -325,17 +329,17 @@ export default function ShopView({
                     className="aspect-square w-full sm:w-32 sm:h-32 overflow-hidden bg-zinc-50 border border-zinc-200 relative cursor-pointer rounded-md shrink-0"
                     onClick={() => handleProductClick(product)}
                   >
-                    <img src={product.images[0]} alt={product.name} className="h-full w-full object-cover group-hover:scale-102 transition-transform duration-200" referrerPolicy="no-referrer" />
+                    <SafeImg src={getProductImage(product.images)} fallback={FALLBACK_PRODUCT_IMAGE} alt={t(`products.${product.id}.name`, product.name)} className="h-full w-full object-cover group-hover:scale-102 transition-transform duration-200" />
                   </div>
                   <div className="flex flex-1 flex-col justify-between py-1">
                     <div>
-                      <span className="text-[10px] font-bold text-zinc-400 uppercase tracking-widest">{product.category} › {product.subcategory}</span>
+                      <span className="text-[10px] font-bold text-zinc-400 uppercase tracking-widest">{t(`cat.${product.category}`, product.category)} › {t(`cat.${product.subcategory}`, product.subcategory)}</span>
                       <div className="flex items-center gap-1 text-zinc-700 mt-0.5">
                         <Star className="h-3 w-3 fill-current" />
                         <span className="text-xs font-bold">{product.rating}</span>
                       </div>
-                      <h3 className="text-sm font-bold text-zinc-900 hover:text-zinc-600 cursor-pointer mt-1" onClick={() => handleProductClick(product)}>{product.name}</h3>
-                      <p className="mt-1.5 text-xs text-zinc-500 line-clamp-2 leading-relaxed">{product.description}</p>
+                      <h3 className="text-sm font-bold text-zinc-900 hover:text-zinc-600 cursor-pointer mt-1" onClick={() => handleProductClick(product)}>{t(`products.${product.id}.name`, product.name)}</h3>
+                      <p className="mt-1.5 text-xs text-zinc-500 line-clamp-2 leading-relaxed">{t(`products.${product.id}.desc`, product.description)}</p>
                     </div>
                     <div className="mt-3 flex items-center justify-between">
                       <span className="text-sm font-black text-zinc-950">{formatCurrency(product.price)}</span>
@@ -349,7 +353,7 @@ export default function ShopView({
                           <Heart className="h-4 w-4" fill={isInWishlist(product) ? 'currentColor' : 'none'} />
                         </button>
                         <button onClick={() => addToCart(product)} className="flex items-center gap-2 rounded-md bg-zinc-900 px-4 py-2 text-xs font-bold text-white hover:bg-zinc-800 transition-colors">
-                          <ShoppingCart className="h-4 w-4" /> Add to Cart
+                          <ShoppingCart className="h-4 w-4" /> {t('common.addToCart')}
                         </button>
                       </div>
                     </div>
@@ -366,49 +370,49 @@ export default function ShopView({
         <div className="fixed inset-0 z-50 flex lg:hidden bg-zinc-950/40 backdrop-blur-sm" id="mobile-filters-drawer">
           <div className="ml-auto flex h-full w-full max-w-sm flex-col bg-white p-6 shadow-xl overflow-y-auto">
             <div className="flex items-center justify-between border-b border-zinc-200 pb-4 mb-6">
-              <h2 className="text-base font-bold text-zinc-900">Refine Catalogue</h2>
+              <h2 className="text-base font-bold text-zinc-900">{t('shop.refineCatalogue')}</h2>
               <button onClick={() => setMobileFiltersOpen(false)} className="w-8 h-8 flex items-center justify-center rounded-md bg-zinc-100 text-zinc-500 hover:bg-zinc-200 transition-colors">
                 <X className="h-4 w-4" />
               </button>
             </div>
             <div className="space-y-5">
               <div>
-                <h3 className="text-[10px] font-black uppercase tracking-widest text-zinc-400 mb-3">Categories</h3>
+                <h3 className="text-[10px] font-black uppercase tracking-widest text-zinc-400 mb-3">{t('shop.allCategories')}</h3>
                 <div className="space-y-1">
                   {categories.map((cat) => (
                     <button key={cat} onClick={() => handleCategoryChange(cat)}
                       className={`flex w-full items-center justify-between rounded-md px-3.5 py-2.5 text-xs font-semibold transition-all ${
                         selectedCategory === cat ? 'bg-zinc-900 text-white' : 'text-zinc-600 hover:bg-zinc-50'
-                      }`}>{cat}</button>
+                      }`}>{t(`cat.${cat}`, cat)}</button>
                   ))}
                 </div>
               </div>
               {selectedCategory !== 'All' && subcategories.length > 0 && (
                 <div>
-                  <h3 className="text-[10px] font-black uppercase tracking-widest text-zinc-400 mb-3">Subcategory</h3>
+                  <h3 className="text-[10px] font-black uppercase tracking-widest text-zinc-400 mb-3">{t('shop.subcategory')}</h3>
                   <div className="space-y-0.5">
                     <button onClick={() => setSelectedSubcategory('All')} className={`flex w-full items-center rounded-md px-3 py-2 text-xs font-semibold ${selectedSubcategory === 'All' ? 'text-zinc-950 font-bold' : 'text-zinc-500'}`}>
-                      All {selectedCategory}
+                      {t('common.allCategory', `All ${selectedCategory}`, { category: t(`cat.${selectedCategory}`, selectedCategory) })}
                     </button>
                     {subcategories.map((sub) => (
-                      <button key={sub} onClick={() => setSelectedSubcategory(sub)} className={`flex w-full items-center rounded-md px-3 py-2 text-xs font-semibold ${selectedSubcategory === sub ? 'text-zinc-950 font-bold' : 'text-zinc-500'}`}>{sub}</button>
+                      <button key={sub} onClick={() => setSelectedSubcategory(sub)} className={`flex w-full items-center rounded-md px-3 py-2 text-xs font-semibold ${selectedSubcategory === sub ? 'text-zinc-950 font-bold' : 'text-zinc-500'}`}>{t(`cat.${sub}`, sub)}</button>
                     ))}
                   </div>
                 </div>
               )}
               <div>
-                <h3 className="text-[10px] font-black uppercase tracking-widest text-zinc-400 mb-3">Sort By</h3>
+                <h3 className="text-[10px] font-black uppercase tracking-widest text-zinc-400 mb-3">{t('shop.sortBy')}</h3>
                 <select value={sortOption} onChange={(e) => setSortOption(e.target.value)}
                   className="w-full rounded-md bg-zinc-50 border border-zinc-200 px-3.5 py-2.5 text-xs font-semibold text-zinc-700 outline-none focus:border-zinc-950">
-                  <option value="featured">Featured Selections</option>
-                  <option value="price-low-high">Price: Low to High</option>
-                  <option value="price-high-low">Price: High to Low</option>
-                  <option value="rating">Top Customer Rated</option>
-                  <option value="bestseller">Best Selling First</option>
+                  <option value="featured">{t('shop.featuredSelections')}</option>
+                  <option value="price-low-high">{t('shop.priceAsc')}</option>
+                  <option value="price-high-low">{t('shop.priceDesc')}</option>
+                  <option value="rating">{t('shop.topCustomerRated')}</option>
+                  <option value="bestseller">{t('shop.bestSellingFirst')}</option>
                 </select>
               </div>
               <div className="pt-4">
-                <button onClick={() => setMobileFiltersOpen(false)} className="btn-primary w-full justify-center">Apply &amp; View Results</button>
+                <button onClick={() => setMobileFiltersOpen(false)} className="btn-primary w-full justify-center">{t('shop.applyView')}</button>
               </div>
             </div>
           </div>

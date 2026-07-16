@@ -3,7 +3,8 @@
  * SPDX-License-Identifier: Apache-2.0
  */
 
-import React, { useState } from 'react';
+import React, { useState, useRef } from 'react';
+import { useLanguage } from '../i18n/LanguageContext';
 import { 
   Plus, 
   Trash2, 
@@ -25,7 +26,9 @@ import {
   ChevronRight,
   Package,
   BarChart3,
-  Menu
+  Menu,
+  Upload,
+  AlertTriangle
 } from 'lucide-react';
 import { Product, Service, Order, User } from '../types';
 import { formatCurrency } from '../utils/currency';
@@ -57,6 +60,7 @@ export default function AdminDashboardView({
   onUpdateOrderStatus,
   setView
 }: AdminDashboardViewProps) {
+  const { t } = useLanguage();
   const [activeSubTab, setActiveSubTab] = useState<'dashboard' | 'products' | 'services' | 'orders' | 'users' | 'settings'>('dashboard');
   const [sidebarCollapsed, setSidebarCollapsed] = useState(false);
   const [mobileSidebarOpen, setMobileSidebarOpen] = useState(false);
@@ -68,7 +72,9 @@ export default function AdminDashboardView({
   const [prodCategory, setProdCategory] = useState<'Electronics' | 'Clothing & Fashion' | 'Jewelry' | 'Footwear'>('Electronics');
   const [prodSubcategory, setProdSubcategory] = useState('');
   const [prodDesc, setProdDesc] = useState('');
-  const [prodImages, setProdImages] = useState('');
+  const [prodImages, setProdImages] = useState(''); // kept for edit fallback URL
+  const [uploadedProdImages, setUploadedProdImages] = useState<string[]>([]); // base64
+  const prodFileRef = useRef<HTMLInputElement>(null);
   const [prodStock, setProdStock] = useState('');
   const [prodIsBestSeller, setProdIsBestSeller] = useState(false);
   const [prodIsFeatured, setProdIsFeatured] = useState(false);
@@ -79,7 +85,17 @@ export default function AdminDashboardView({
   const [srvDesc, setSrvDesc] = useState('');
   const [srvDetails, setSrvDetails] = useState('');
   const [srvPrice, setSrvPrice] = useState('');
-  const [srvImage, setSrvImage] = useState('');
+  const [srvImage, setSrvImage] = useState(''); // kept for edit fallback URL
+  const [uploadedSrvImage, setUploadedSrvImage] = useState<string>(''); // base64
+  const srvFileRef = useRef<HTMLInputElement>(null);
+
+  // Delete Confirmation Modal State
+  const [deleteModal, setDeleteModal] = useState<{
+    isOpen: boolean;
+    type: 'product' | 'service' | null;
+    id: string | null;
+    name: string;
+  }>({ isOpen: false, type: null, id: null, name: '' });
 
   // Stats Card Calculations
   const totalSales = orders
@@ -99,6 +115,8 @@ export default function AdminDashboardView({
     setProdSubcategory(p.subcategory);
     setProdDesc(p.description);
     setProdImages(p.images.join(', '));
+    setUploadedProdImages([]); // clear file uploads when switching to edit
+    if (prodFileRef.current) prodFileRef.current.value = '';
     setProdStock(p.stock.toString());
     setProdIsBestSeller(!!p.isBestSeller);
     setProdIsFeatured(!!p.isFeatured);
@@ -111,7 +129,9 @@ export default function AdminDashboardView({
       return;
     }
 
-    const imgsList = prodImages.split(',').map(s => s.trim()).filter(Boolean);
+    const imgsList = uploadedProdImages.length > 0
+      ? uploadedProdImages
+      : prodImages.split(',').map(s => s.trim()).filter(Boolean);
     const imagesArray = imgsList.length > 0 ? imgsList : ['https://images.unsplash.com/photo-1523275335684-37898b6baf30?auto=format&fit=crop&w=600&q=80'];
 
     const productPayload: Product = {
@@ -142,6 +162,8 @@ export default function AdminDashboardView({
     setProdSubcategory('');
     setProdDesc('');
     setProdImages('');
+    setUploadedProdImages([]);
+    if (prodFileRef.current) prodFileRef.current.value = '';
     setProdStock('');
     setProdIsBestSeller(false);
     setProdIsFeatured(false);
@@ -155,6 +177,8 @@ export default function AdminDashboardView({
     setSrvDetails(s.details.join(', '));
     setSrvPrice(s.priceInfo);
     setSrvImage(s.image);
+    setUploadedSrvImage(''); // clear file upload when switching to edit
+    if (srvFileRef.current) srvFileRef.current.value = '';
   };
 
   const handleServiceSubmit = (e: React.FormEvent) => {
@@ -173,7 +197,7 @@ export default function AdminDashboardView({
       details: detailsArray,
       priceInfo: srvPrice,
       icon: editingServiceId ? (services.find(s => s.id === editingServiceId)?.icon || 'Wrench') : 'Wrench',
-      image: srvImage || 'https://images.unsplash.com/photo-1544197150-b99a580bb7a8?auto=format&fit=crop&w=600&q=80'
+      image: uploadedSrvImage || srvImage || 'https://images.unsplash.com/photo-1544197150-b99a580bb7a8?auto=format&fit=crop&w=600&q=80'
     };
 
     if (editingServiceId) {
@@ -189,6 +213,8 @@ export default function AdminDashboardView({
     setSrvDetails('');
     setSrvPrice('');
     setSrvImage('');
+    setUploadedSrvImage('');
+    if (srvFileRef.current) srvFileRef.current.value = '';
   };
 
   const sidebarItems = [
@@ -353,7 +379,7 @@ export default function AdminDashboardView({
 
                 <div className="group relative bg-white border border-zinc-200 rounded-md p-8 card-lift hover:border-zinc-300 transition-colors flex items-center justify-between">
                   <div>
-                    <span className="text-[11px] font-bold text-zinc-400 uppercase tracking-wider block">Pending Orders</span>
+                    <span className="text-[11px] font-bold text-zinc-400 uppercase tracking-wider block">{t('admin.pendingOrders')}</span>
                     <span className="text-2xl font-black text-zinc-900 mt-1 block">{pendingOrdersCount}</span>
                   </div>
                   <div className="relative z-10 flex items-center justify-center w-12 h-12 rounded-md bg-zinc-900 text-white shadow-sm transition-transform group-hover:scale-110 duration-300">
@@ -467,12 +493,12 @@ export default function AdminDashboardView({
                   <table className="w-full text-left text-xs text-zinc-600 min-w-[700px]">
                     <thead className="bg-zinc-50 uppercase text-[10px] font-bold text-zinc-400 tracking-wider">
                       <tr>
-                        <th className="px-6 py-3">Order ID</th>
-                        <th className="px-6 py-3">Customer</th>
+                        <th className="px-6 py-3">{t('admin.id')}</th>
+                        <th className="px-6 py-3">{t('admin.customer')}</th>
                         <th className="px-6 py-3">Items</th>
                         <th className="px-6 py-3">Payment</th>
-                        <th className="px-6 py-3">Total</th>
-                        <th className="px-6 py-3">Status</th>
+                        <th className="px-6 py-3">{t('admin.total')}</th>
+                        <th className="px-6 py-3">{t('admin.status')}</th>
                       </tr>
                     </thead>
                     <tbody className="divide-y divide-zinc-100">
@@ -535,6 +561,8 @@ export default function AdminDashboardView({
                         setProdDesc('');
                         setProdStock('');
                         setProdImages('');
+                        setUploadedProdImages([]);
+                        if (prodFileRef.current) prodFileRef.current.value = '';
                       }}
                       className="rounded-full p-1 text-zinc-400 hover:bg-zinc-100"
                     >
@@ -545,7 +573,7 @@ export default function AdminDashboardView({
 
                 <form onSubmit={handleProductSubmit} className="space-y-4">
                   <div>
-                    <label className={labelClass}>Product Name</label>
+                    <label className={labelClass}>{t('admin.prodName')}</label>
                     <input
                       type="text"
                       required
@@ -558,7 +586,7 @@ export default function AdminDashboardView({
 
                   <div className="grid grid-cols-2 gap-3">
                     <div>
-                      <label className={labelClass}>Category</label>
+                      <label className={labelClass}>{t('admin.category')}</label>
                       <select
                         value={prodCategory}
                         onChange={(e) => setProdCategory(e.target.value as any)}
@@ -610,13 +638,47 @@ export default function AdminDashboardView({
                   </div>
 
                   <div>
-                    <label className={labelClass}>Image URLs (comma separated)</label>
+                    <label className={labelClass}>Product Images</label>
+                    <div
+                      onClick={() => prodFileRef.current?.click()}
+                      className="border-2 border-dashed border-zinc-200 rounded-md p-4 cursor-pointer hover:border-zinc-400 transition-colors text-center"
+                    >
+                      {uploadedProdImages.length > 0 ? (
+                        <div className="flex flex-wrap gap-2 justify-center">
+                          {uploadedProdImages.map((src, i) => (
+                            <img key={i} src={src} alt={`preview-${i}`} className="h-16 w-16 object-cover rounded-md border border-zinc-200" />
+                          ))}
+                          <div className="w-full text-[10px] text-zinc-400 mt-1">{uploadedProdImages.length} image(s) — click to change</div>
+                        </div>
+                      ) : prodImages ? (
+                        <div>
+                          <img src={prodImages.split(',')[0].trim()} alt="current" className="h-16 w-16 object-cover rounded-md border border-zinc-200 mx-auto" onError={(e) => { (e.target as HTMLImageElement).style.display='none'; }} />
+                          <div className="text-[10px] text-zinc-400 mt-1">Current image — click to upload new</div>
+                        </div>
+                      ) : (
+                        <div className="py-3">
+                          <Upload className="h-6 w-6 text-zinc-300 mx-auto mb-1" />
+                          <p className="text-xs text-zinc-400">Click to upload images</p>
+                          <p className="text-[10px] text-zinc-300 mt-0.5">PNG, JPG, WEBP — multiple allowed</p>
+                        </div>
+                      )}
+                    </div>
                     <input
-                      type="text"
-                      value={prodImages}
-                      onChange={(e) => setProdImages(e.target.value)}
-                      placeholder="https://images.unsplash.com/..."
-                      className={inputClass}
+                      ref={prodFileRef}
+                      type="file"
+                      accept="image/*"
+                      multiple
+                      className="hidden"
+                      onChange={(e) => {
+                        const files = Array.from(e.target.files || []);
+                        if (files.length === 0) return;
+                        const readers = files.map(file => new Promise<string>((resolve) => {
+                          const reader = new FileReader();
+                          reader.onload = () => resolve(reader.result as string);
+                          reader.readAsDataURL(file);
+                        }));
+                        Promise.all(readers).then(results => setUploadedProdImages(results));
+                      }}
                     />
                   </div>
 
@@ -675,10 +737,10 @@ export default function AdminDashboardView({
                     <thead className="bg-zinc-50 uppercase text-[10px] font-bold text-zinc-400 tracking-wider">
                       <tr>
                         <th className="px-6 py-3">Product</th>
-                        <th className="px-6 py-3">Category</th>
+                        <th className="px-6 py-3">{t('admin.category')}</th>
                         <th className="px-6 py-3">Price</th>
                         <th className="px-6 py-3">Stock</th>
-                        <th className="px-6 py-3 text-right">Actions</th>
+                        <th className="px-6 py-3 text-right">{t('admin.actions')}</th>
                       </tr>
                     </thead>
                     <tbody className="divide-y divide-zinc-100">
@@ -712,11 +774,7 @@ export default function AdminDashboardView({
                               <Edit3 className="h-3.5 w-3.5" />
                             </button>
                             <button
-                              onClick={() => {
-                                if (confirm(`Delete ${p.name} from catalog?`)) {
-                                  onDeleteProduct(p.id);
-                                }
-                              }}
+                              onClick={() => setDeleteModal({ isOpen: true, type: 'product', id: p.id, name: p.name })}
                               className="p-1.5 rounded-md bg-red-50 text-red-500 hover:bg-red-100 transition-colors"
                               title="Delete product"
                             >
@@ -762,7 +820,7 @@ export default function AdminDashboardView({
 
                 <form onSubmit={handleServiceSubmit} className="space-y-4">
                   <div>
-                    <label className={labelClass}>Service Title</label>
+                    <label className={labelClass}>{t('admin.title')}</label>
                     <input
                       type="text"
                       required
@@ -786,13 +844,41 @@ export default function AdminDashboardView({
                   </div>
 
                   <div>
-                    <label className={labelClass}>Cover Image URL</label>
+                    <label className={labelClass}>Cover Image</label>
+                    <div
+                      onClick={() => srvFileRef.current?.click()}
+                      className="border-2 border-dashed border-zinc-200 rounded-md p-4 cursor-pointer hover:border-zinc-400 transition-colors text-center"
+                    >
+                      {uploadedSrvImage ? (
+                        <div>
+                          <img src={uploadedSrvImage} alt="preview" className="h-20 w-full object-cover rounded-md border border-zinc-200 mb-1" />
+                          <div className="text-[10px] text-zinc-400">Image selected — click to change</div>
+                        </div>
+                      ) : srvImage ? (
+                        <div>
+                          <img src={srvImage} alt="current" className="h-20 w-full object-cover rounded-md border border-zinc-200 mb-1" onError={(e) => { (e.target as HTMLImageElement).style.display='none'; }} />
+                          <div className="text-[10px] text-zinc-400">Current image — click to upload new</div>
+                        </div>
+                      ) : (
+                        <div className="py-3">
+                          <Upload className="h-6 w-6 text-zinc-300 mx-auto mb-1" />
+                          <p className="text-xs text-zinc-400">Click to upload a cover image</p>
+                          <p className="text-[10px] text-zinc-300 mt-0.5">PNG, JPG, WEBP supported</p>
+                        </div>
+                      )}
+                    </div>
                     <input
-                      type="text"
-                      value={srvImage}
-                      onChange={(e) => setSrvImage(e.target.value)}
-                      placeholder="https://images.unsplash.com/..."
-                      className={inputClass}
+                      ref={srvFileRef}
+                      type="file"
+                      accept="image/*"
+                      className="hidden"
+                      onChange={(e) => {
+                        const file = e.target.files?.[0];
+                        if (!file) return;
+                        const reader = new FileReader();
+                        reader.onload = () => setUploadedSrvImage(reader.result as string);
+                        reader.readAsDataURL(file);
+                      }}
                     />
                   </div>
 
@@ -843,7 +929,7 @@ export default function AdminDashboardView({
                         <th className="px-6 py-3">Service</th>
                         <th className="px-6 py-3">Pricing</th>
                         <th className="px-6 py-3">Details</th>
-                        <th className="px-6 py-3 text-right">Actions</th>
+                        <th className="px-6 py-3 text-right">{t('admin.actions')}</th>
                       </tr>
                     </thead>
                     <tbody className="divide-y divide-zinc-100">
@@ -860,11 +946,7 @@ export default function AdminDashboardView({
                               <Edit3 className="h-3.5 w-3.5" />
                             </button>
                             <button
-                              onClick={() => {
-                                if (confirm(`Delete ${s.title}?`)) {
-                                  onDeleteService(s.id);
-                                }
-                              }}
+                              onClick={() => setDeleteModal({ isOpen: true, type: 'service', id: s.id, name: s.title })}
                               className="p-1.5 rounded-md bg-red-50 text-red-500 hover:bg-red-100 transition-colors"
                             >
                               <Trash2 className="h-3.5 w-3.5" />
@@ -956,6 +1038,51 @@ export default function AdminDashboardView({
 
         </main>
       </div>
+
+      {/* Delete Confirmation Modal */}
+      {deleteModal.isOpen && (
+        <div className="fixed inset-0 z-50 flex items-center justify-center p-4">
+          <div className="fixed inset-0 bg-black/60 backdrop-blur-sm" onClick={() => setDeleteModal({ isOpen: false, type: null, id: null, name: '' })} />
+          <div className="relative bg-white rounded-xl shadow-2xl w-full max-w-sm p-6 animate-fade-up">
+            <div className="flex items-center gap-4 mb-4">
+              <div className="flex-shrink-0 h-10 w-10 rounded-full bg-red-100 flex items-center justify-center">
+                <AlertTriangle className="h-5 w-5 text-red-600" />
+              </div>
+              <div>
+                <h3 className="text-lg font-bold text-zinc-900 tracking-tight">Confirm Deletion</h3>
+                <p className="text-xs text-zinc-500 mt-0.5">This action cannot be undone.</p>
+              </div>
+            </div>
+            
+            <p className="text-sm text-zinc-600 mb-6 py-2 border-y border-zinc-100">
+              Are you sure you want to delete <strong className="text-zinc-900">{deleteModal.name}</strong> from the catalog?
+            </p>
+
+            <div className="flex items-center gap-3 justify-end">
+              <button
+                onClick={() => setDeleteModal({ isOpen: false, type: null, id: null, name: '' })}
+                className="px-4 py-2 text-sm font-bold text-zinc-600 hover:bg-zinc-100 rounded-md transition-colors"
+              >
+                Cancel
+              </button>
+              <button
+                onClick={() => {
+                  if (deleteModal.type === 'product' && deleteModal.id) {
+                    onDeleteProduct(deleteModal.id);
+                  } else if (deleteModal.type === 'service' && deleteModal.id) {
+                    onDeleteService(deleteModal.id);
+                  }
+                  setDeleteModal({ isOpen: false, type: null, id: null, name: '' });
+                }}
+                className="px-4 py-2 text-sm font-bold text-white bg-red-600 hover:bg-red-700 rounded-md transition-colors flex items-center gap-2 shadow-sm"
+              >
+                <Trash2 className="h-4 w-4" />
+                Delete {deleteModal.type === 'product' ? 'Product' : 'Service'}
+              </button>
+            </div>
+          </div>
+        </div>
+      )}
     </div>
   );
 }

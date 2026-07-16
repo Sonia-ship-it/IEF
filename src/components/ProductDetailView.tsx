@@ -17,6 +17,9 @@ import {
 } from 'lucide-react';
 import { Product } from '../types';
 import { formatCurrency } from '../utils/currency';
+import { useLanguage } from '../i18n/LanguageContext';
+import { getProductImage, FALLBACK_PRODUCT_IMAGE } from '../utils/image';
+import { SafeImg } from './SafeImage';
 
 interface ProductDetailViewProps {
   product: Product;
@@ -37,12 +40,13 @@ export default function ProductDetailView({
   setSelectedProduct,
   setView
 }: ProductDetailViewProps) {
-  const [activeImage, setActiveImage] = useState(product.images[0]);
+  const [activeImage, setActiveImage] = useState(getProductImage(product.images));
   const [quantity, setQuantity] = useState(1);
   const [justAdded, setJustAdded] = useState(false);
+  const { t } = useLanguage();
 
   useEffect(() => {
-    setActiveImage(product.images[0]);
+    setActiveImage(getProductImage(product.images));
     setQuantity(1);
   }, [product]);
 
@@ -79,7 +83,7 @@ export default function ProductDetailView({
         className="group flex items-center gap-2 rounded-md border border-zinc-200 bg-white px-4 py-2.5 text-xs font-bold hover:bg-zinc-50 mb-8"
       >
         <ArrowLeft className="h-4 w-4 transition-transform group-hover:-translate-x-1" />
-        Back to Catalogue
+        {t('productDetail.backToCatalogue')}
       </button>
 
       {/* Main product block */}
@@ -88,11 +92,11 @@ export default function ProductDetailView({
         {/* Left column: Images gallery */}
         <div className="space-y-4">
           <div className="aspect-square w-full overflow-hidden rounded-md bg-zinc-50 border border-zinc-200">
-            <img
+            <SafeImg
               src={activeImage}
-              alt={product.name}
+              fallback={FALLBACK_PRODUCT_IMAGE}
+              alt={t(`products.${product.id}.name`, product.name)}
               className="h-full w-full object-cover object-center"
-              referrerPolicy="no-referrer"
             />
           </div>
           
@@ -107,7 +111,7 @@ export default function ProductDetailView({
                     activeImage === img ? 'border-zinc-900 scale-105' : 'border-transparent opacity-60 hover:opacity-100'
                   }`}
                 >
-                  <img src={img} alt="" className="h-full w-full object-cover" />
+                  <SafeImg src={img} fallback={FALLBACK_PRODUCT_IMAGE} alt="" className="h-full w-full object-cover" />
                 </button>
               ))}
             </div>
@@ -117,11 +121,11 @@ export default function ProductDetailView({
         {/* Right column: Product specs, rating, controls */}
         <div className="flex flex-col">
           <span className="text-[10px] font-bold text-zinc-400 uppercase tracking-widest mb-2">
-            {product.category} &rsaquo; {product.subcategory}
+            {t(`cat.${product.category}`, product.category)} &rsaquo; {t(`cat.${product.subcategory}`, product.subcategory)}
           </span>
           
           <h1 className="text-2xl font-black tracking-tight text-zinc-950 sm:text-3xl uppercase">
-            {product.name}
+            {t(`products.${product.id}.name`, product.name)}
           </h1>
 
           {/* Rating */}
@@ -137,7 +141,7 @@ export default function ProductDetailView({
             </div>
             <span className="text-zinc-350">|</span>
             <span className="text-xs font-semibold text-zinc-500">
-              {product.reviewsCount} Customer Reviews
+              {product.reviewsCount} {t('productDetail.customerReviews')}
             </span>
           </div>
 
@@ -149,13 +153,15 @@ export default function ProductDetailView({
             <div className="flex items-center gap-2">
               <span className={`inline-flex h-2 w-2 rounded-full ${product.stock > 0 ? 'bg-zinc-900 animate-pulse' : 'bg-red-500'}`} />
               <span className="text-xs font-semibold text-zinc-500">
-                {product.stock > 0 ? `In Stock (${product.stock} available)` : 'Temporarily Out of Stock'}
+                {product.stock > 0
+                  ? t('productDetail.inStockAvailable', `In Stock (${product.stock} available)`, { count: product.stock })
+                  : t('productDetail.outOfStock')}
               </span>
             </div>
           </div>
 
           <p className="mt-5 text-xs text-zinc-500 leading-relaxed font-medium">
-            {product.description}
+            {t(`products.${product.id}.desc`, product.description)}
           </p>
 
           {/* Actions */}
@@ -193,12 +199,12 @@ export default function ProductDetailView({
                 {justAdded ? (
                   <>
                     <Check className="h-4 w-4 stroke-[3]" />
-                    Successfully Added!
+                    {t('productDetail.successfullyAdded')}
                   </>
                 ) : (
                   <>
                     <ShoppingCart className="h-4 w-4" />
-                    Add to Cart Bag
+                    {t('productDetail.addToCartBag')}
                   </>
                 )}
               </button>
@@ -211,7 +217,7 @@ export default function ProductDetailView({
                 }`}
               >
                 <Heart className="h-4 w-4" fill={isInWishlist ? 'currentColor' : 'none'} />
-                <span className="sm:hidden text-xs font-bold">{isInWishlist ? 'Saved' : 'Add to Wishlist'}</span>
+                <span className="sm:hidden text-xs font-bold">{isInWishlist ? t('productDetail.saved') : t('productDetail.addToWishlist')}</span>
               </button>
 
             </div>
@@ -222,22 +228,22 @@ export default function ProductDetailView({
             <div className="flex items-start gap-2">
               <Truck className="h-4 w-4 text-zinc-900 shrink-0 mt-0.5" />
               <div>
-                <h4 className="font-bold text-zinc-800 mb-0.5">Reliable Shipping</h4>
-                <p>Express 24-48h dispatch in Kigali, next-day nationwide.</p>
+                <h4 className="font-bold text-zinc-800 mb-0.5">{t('productDetail.reliableShipping')}</h4>
+                <p>{t('productDetail.reliableShippingDesc')}</p>
               </div>
             </div>
             <div className="flex items-start gap-2">
               <RefreshCcw className="h-4 w-4 text-zinc-900 shrink-0 mt-0.5" />
               <div>
-                <h4 className="font-bold text-zinc-800 mb-0.5">Easy Returns</h4>
-                <p>7-day hassle-free return policy for pristine items.</p>
+                <h4 className="font-bold text-zinc-800 mb-0.5">{t('productDetail.easyReturns')}</h4>
+                <p>{t('productDetail.easyReturnsDesc')}</p>
               </div>
             </div>
             <div className="flex items-start gap-2">
               <ShieldCheck className="h-4 w-4 text-zinc-900 shrink-0 mt-0.5" />
               <div>
-                <h4 className="font-bold text-zinc-800 mb-0.5">Genuine Guarantee</h4>
-                <p>100% original electronic chips &amp; highweight garments.</p>
+                <h4 className="font-bold text-zinc-800 mb-0.5">{t('productDetail.genuineGuarantee')}</h4>
+                <p>{t('productDetail.genuineGuaranteeDesc')}</p>
               </div>
             </div>
           </div>
@@ -250,7 +256,7 @@ export default function ProductDetailView({
         <section className="border-t border-zinc-150 pt-10 mb-12">
           <h2 className="text-base font-black text-zinc-950 mb-6 uppercase tracking-wider flex items-center gap-2">
             <Info className="h-4 w-4 text-zinc-900" />
-            Detailed Specifications
+            {t('productDetail.detailedSpecs')}
           </h2>
           <div className="rounded-md border border-zinc-200 bg-zinc-50 overflow-hidden max-w-2xl">
             <dl className="divide-y divide-zinc-200">
@@ -269,7 +275,7 @@ export default function ProductDetailView({
       {relatedProducts.length > 0 && (
         <section className="border-t border-zinc-150 pt-10">
           <h2 className="text-base font-black text-zinc-950 mb-6 uppercase tracking-wider">
-            You May Also Like
+            {t('productDetail.youMayAlsoLike')}
           </h2>
           <div className="grid grid-cols-1 gap-y-10 gap-x-5 sm:grid-cols-2 lg:grid-cols-4">
             {relatedProducts.map((p) => {
@@ -281,9 +287,10 @@ export default function ProductDetailView({
                   onClick={() => setSelectedProduct(p)}
                 >
                   <div className="aspect-square w-full overflow-hidden bg-zinc-50 border-b border-zinc-200 relative">
-                    <img
-                      src={p.images[0]}
-                      alt={p.name}
+                    <SafeImg
+                      src={getProductImage(p.images)}
+                      fallback={FALLBACK_PRODUCT_IMAGE}
+                      alt={t(`products.${p.id}.name`, p.name)}
                       className="h-full w-full object-cover group-hover:scale-102 transition-transform duration-200"
                     />
                     <button
@@ -299,9 +306,9 @@ export default function ProductDetailView({
                     </button>
                   </div>
                   <div className="p-4 flex flex-col flex-1">
-                    <span className="text-[10px] font-bold text-zinc-400 uppercase tracking-widest">{p.subcategory}</span>
+                    <span className="text-[10px] font-bold text-zinc-400 uppercase tracking-widest">{t(`cat.${p.subcategory}`, p.subcategory)}</span>
                     <h3 className="mt-1 text-xs font-bold text-zinc-900 line-clamp-2 min-h-[36px] group-hover:text-zinc-650">
-                      {p.name}
+                      {t(`products.${p.id}.name`, p.name)}
                     </h3>
                     <div className="mt-3 flex items-center justify-between">
                       <span className="text-sm font-black text-zinc-900">

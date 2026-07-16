@@ -14,6 +14,9 @@ import {
 } from 'lucide-react';
 import { CartItem } from '../types';
 import { formatCurrency } from '../utils/currency';
+import { useLanguage } from '../i18n/LanguageContext';
+import { getProductImage, FALLBACK_PRODUCT_IMAGE } from '../utils/image';
+import { SafeImg } from './SafeImage';
 
 interface CartViewProps {
   cart: CartItem[];
@@ -28,9 +31,10 @@ export default function CartView({
   removeFromCart,
   setView
 }: CartViewProps) {
+  const { t } = useLanguage();
   
   const subtotal = cart.reduce((acc, item) => acc + item.product.price * item.quantity, 0);
-  const deliveryFee = subtotal === 0 ? 0 : (subtotal > 150 ? 0 : 5.00);
+  const deliveryFee = subtotal === 0 ? 0 : (subtotal > 150000 ? 0 : 5000);
   const total = subtotal + deliveryFee;
 
   const handleIncrement = (item: CartItem) => {
@@ -51,13 +55,13 @@ export default function CartView({
         <div className="flex h-20 w-20 items-center justify-center rounded-md bg-zinc-100 text-zinc-400 mx-auto">
           <ShoppingCart className="h-10 w-10" />
         </div>
-        <h1 className="mt-6 text-xl font-black tracking-tight text-zinc-950">Your Cart is Empty</h1>
+        <h1 className="mt-6 text-xl font-black tracking-tight text-zinc-950">{t('cart.empty')}</h1>
         <p className="mt-2 text-sm text-zinc-500">
-          Looks like you haven't added any products yet. Explore our premium fashion garments and advanced security systems today.
+          {t('cart.emptyMsg')}
         </p>
         <button onClick={() => setView('shop')} className="mt-8 btn-primary">
           <ArrowRight className="h-4 w-4" />
-          Go to Shop Catalogue
+          {t('cart.goToShop')}
         </button>
       </div>
     );
@@ -67,7 +71,7 @@ export default function CartView({
     <div className="mx-auto max-w-7xl px-6 py-8 font-sans text-zinc-800 bg-white" id="cart-view">
       
       <h1 className="text-2xl font-black tracking-tight text-zinc-950 mb-8">
-        Your Shopping Bag <span className="text-zinc-400 font-medium text-base">({cart.length} items)</span>
+        {t('cart.title')} <span className="text-zinc-400 font-medium text-base">({cart.length} {t('common.items')})</span>
       </h1>
 
       <div className="grid grid-cols-1 lg:grid-cols-3 gap-8 items-start">
@@ -80,16 +84,16 @@ export default function CartView({
               {/* Image & Info */}
               <div className="flex gap-4 items-center">
                 <div className="h-20 w-20 rounded-md overflow-hidden bg-zinc-100 shrink-0 border border-zinc-200">
-                  <img src={item.product.images[0]} alt={item.product.name} className="h-full w-full object-cover" referrerPolicy="no-referrer" />
+                  <SafeImg src={getProductImage(item.product.images)} fallback={FALLBACK_PRODUCT_IMAGE} alt={t(`products.${item.product.id}.name`, item.product.name)} className="h-full w-full object-cover" />
                 </div>
                 <div>
                   <span className="text-[10px] font-bold text-zinc-400 uppercase tracking-widest block mb-0.5">
-                    {item.product.category}
+                    {t(`cat.${item.product.category}`, item.product.category)}
                   </span>
                   <h3 className="text-sm font-bold text-zinc-900 hover:text-zinc-600 cursor-pointer line-clamp-1 max-w-[260px] transition-colors" onClick={() => setView('product-detail')}>
-                    {item.product.name}
+                    {t(`products.${item.product.id}.name`, item.product.name)}
                   </h3>
-                  <p className="text-xs text-zinc-500 mt-1">Unit: {formatCurrency(item.product.price)}</p>
+                  <p className="text-xs text-zinc-500 mt-1">{t('common.unit')}: {formatCurrency(item.product.price)}</p>
                 </div>
               </div>
 
@@ -114,7 +118,7 @@ export default function CartView({
                 </span>
 
                 {/* Remove */}
-                <button onClick={() => removeFromCart(item.product.id)} className="rounded-md p-2 text-zinc-400 hover:text-red-500 hover:bg-red-50 transition-all border border-transparent hover:border-red-100" aria-label="Remove item">
+                <button onClick={() => removeFromCart(item.product.id)} className="rounded-md p-2 text-zinc-400 hover:text-red-500 hover:bg-red-50 transition-all border border-transparent hover:border-red-100" aria-label={t('common.remove')}>
                   <Trash2 className="h-4 w-4" />
                 </button>
               </div>
@@ -124,35 +128,35 @@ export default function CartView({
 
         {/* Right: Summary */}
         <aside className="rounded-md border border-zinc-200 bg-zinc-50 p-5 sticky top-28">
-          <h2 className="text-xs font-black text-zinc-950 uppercase tracking-wider mb-5">Order Summary</h2>
+          <h2 className="text-xs font-black text-zinc-950 uppercase tracking-wider mb-5">{t('common.orderSummary')}</h2>
 
           <div className="space-y-3.5 text-xs">
             <div className="flex justify-between">
-              <span className="text-zinc-500">Subtotal</span>
+              <span className="text-zinc-500">{t('common.subtotal')}</span>
               <span className="font-bold text-zinc-900">{formatCurrency(subtotal)}</span>
             </div>
             <div className="flex justify-between items-center">
               <span className="text-zinc-500 flex items-center gap-1.5">
                 <Truck className="h-3.5 w-3.5 text-zinc-400" />
-                Delivery
+                {t('common.delivery')}
               </span>
               <span className="font-bold text-zinc-900">
                 {deliveryFee === 0 ? (
-                  <span className="text-zinc-900 font-bold">Free</span>
+                  <span className="text-zinc-900 font-bold">{t('common.free')}</span>
                 ) : (
                   formatCurrency(deliveryFee)
                 )}
               </span>
             </div>
 
-            {subtotal < 150 && (
+            {subtotal < 150000 && (
               <div className="rounded-md bg-white p-3 border border-zinc-200 text-xs text-zinc-600 leading-normal">
-                Add <strong className="text-zinc-900">{formatCurrency(150 - subtotal)}</strong> more to unlock <strong className="text-zinc-900">Free Delivery</strong>!
+                {t('common.spendMore')} <strong className="text-zinc-900">{formatCurrency(150000 - subtotal)}</strong> {t('cart.freeDeliveryHint')}
               </div>
             )}
 
             <div className="border-t border-zinc-200 pt-3.5 flex justify-between text-sm font-black">
-              <span className="text-zinc-950 uppercase tracking-wide">Grand Total</span>
+              <span className="text-zinc-950 uppercase tracking-wide">{t('common.grandTotal')}</span>
               <span className="text-zinc-950">{formatCurrency(total)}</span>
             </div>
           </div>
@@ -160,16 +164,16 @@ export default function CartView({
           <div className="mt-6 space-y-3">
             <button onClick={() => setView('checkout')} className="w-full btn-primary justify-center">
               <CreditCard className="h-4 w-4" />
-              Proceed to Checkout
+              {t('common.checkout')}
             </button>
             <button onClick={() => setView('shop')} className="w-full btn-outline justify-center">
               <ArrowLeft className="h-4 w-4" />
-              Continue Shopping
+              {t('common.continueShopping')}
             </button>
           </div>
 
           <p className="text-[9px] text-zinc-400 text-center leading-normal mt-3">
-            Prices include administrative VAT. Delivery coordinates with local couriers.
+            {t('cart.vatNote')}
           </p>
         </aside>
       </div>

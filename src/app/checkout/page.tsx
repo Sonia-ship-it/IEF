@@ -6,6 +6,7 @@ import CheckoutView from '../../components/CheckoutView';
 import OrderConfirmationView from '../../components/OrderConfirmationView';
 import { useAppContext } from '../../context/AppContext';
 import { Order } from '../../types';
+import { getProductImage } from '../../utils/image';
 
 export default function CheckoutPage() {
   const router = useRouter();
@@ -31,7 +32,7 @@ export default function CheckoutPage() {
         productName: item.product.name,
         price: item.product.price,
         quantity: item.quantity,
-        image: item.product.images[0],
+        image: getProductImage(item.product.images),
       })),
       totalAmount: cart.reduce((sum, item) => sum + item.product.price * item.quantity, 0),
       status: 'Pending',

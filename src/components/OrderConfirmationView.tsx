@@ -4,6 +4,7 @@
  */
 
 import React from 'react';
+import { useLanguage } from '../i18n/LanguageContext';
 import { 
   CheckCircle, 
   MapPin, 
@@ -14,6 +15,8 @@ import {
 } from 'lucide-react';
 import { Order } from '../types';
 import { formatCurrency } from '../utils/currency';
+import { getProductImage, FALLBACK_PRODUCT_IMAGE } from '../utils/image';
+import { SafeImg } from './SafeImage';
 
 interface OrderConfirmationViewProps {
   order: Order | null;
@@ -24,14 +27,14 @@ export default function OrderConfirmationView({
   order,
   setView
 }: OrderConfirmationViewProps) {
-  
+  const { t, language } = useLanguage();
   if (!order) {
     return (
       <div className="mx-auto max-w-md px-6 py-20 text-center font-sans text-zinc-800 bg-white">
         <CheckCircle className="h-16 w-16 text-zinc-300 mx-auto" />
-        <h1 className="mt-6 text-xl font-black tracking-tight text-zinc-900">No active order loaded</h1>
+        <h1 className="mt-6 text-xl font-black tracking-tight text-zinc-900">{t('orderConf.noOrder')}</h1>
         <button onClick={() => setView('home')} className="mt-6 btn-primary">
-          Return to Home Page
+          {t('orderConf.returnHome')}
         </button>
       </div>
     );
@@ -41,8 +44,9 @@ export default function OrderConfirmationView({
     const today = new Date();
     const minDate = new Date(today); minDate.setDate(today.getDate() + 1);
     const maxDate = new Date(today); maxDate.setDate(today.getDate() + 2);
+    const locale = language === 'fr' ? 'fr-FR' : language === 'rw' ? 'rw-RW' : 'en-US';
     const options: Intl.DateTimeFormatOptions = { month: 'short', day: 'numeric', year: 'numeric' };
-    return `${minDate.toLocaleDateString('en-US', options)} - ${maxDate.toLocaleDateString('en-US', options)}`;
+    return `${minDate.toLocaleDateString(locale, options)} - ${maxDate.toLocaleDateString(locale, options)}`;
   };
 
   return (
@@ -53,15 +57,15 @@ export default function OrderConfirmationView({
         <div className="mx-auto flex h-12 w-12 items-center justify-center rounded-md bg-zinc-900 text-white mb-4">
           <CheckCircle className="h-6 w-6 stroke-[2.5]" />
         </div>
-        <h1 className="text-2xl sm:text-3xl font-black tracking-tight text-zinc-900">Order Placed Successfully!</h1>
+        <h1 className="text-2xl sm:text-3xl font-black tracking-tight text-zinc-900">{t('orderConf.title')}</h1>
         <p className="mt-2 text-xs text-zinc-500 max-w-md mx-auto leading-relaxed">
-          We have successfully registered your transaction. An automated invoice reference <strong>#{order.id}</strong> was dispatched to your credentials.
+          {t('orderConf.desc1')} <strong>#{order.id}</strong> {t('orderConf.desc2')}
         </p>
       </div>
 
       {/* Delivery Progress Tracker */}
       <section className="mb-8 bg-white border border-zinc-200 rounded-md p-6">
-        <h3 className="text-[10px] font-bold uppercase tracking-widest text-zinc-400 mb-6 text-center">Delivery Progress Tracker</h3>
+        <h3 className="text-[10px] font-bold uppercase tracking-widest text-zinc-400 mb-6 text-center">{t('orderConf.tracker')}</h3>
         
         <div className="relative flex flex-col sm:flex-row items-center justify-between gap-6">
           {/* Connector Line */}
@@ -70,10 +74,10 @@ export default function OrderConfirmationView({
           </div>
 
           {[
-            { label: 'Order Registered', desc: 'Awaiting checks', done: true },
-            { label: 'Under Review', desc: 'Quality assurance', active: true },
-            { label: 'Out for Delivery', desc: 'With local courier', active: false },
-            { label: 'Delivered', desc: 'Doorstep dropoff', active: false }
+            { label: t('orderConf.step1'), desc: t('orderConf.step1Desc'), done: true },
+            { label: t('orderConf.step2'), desc: t('orderConf.step2Desc'), active: true },
+            { label: t('orderConf.step3'), desc: t('orderConf.step3Desc'), active: false },
+            { label: t('orderConf.step4'), desc: t('orderConf.step4Desc'), active: false }
           ].map((step, idx) => (
             <div key={idx} className="flex sm:flex-col items-center gap-4 sm:gap-2 relative z-10 w-full sm:w-1/4 sm:text-center">
               <div className={`h-8 w-8 rounded-md border-2 flex items-center justify-center font-bold text-xs shrink-0 transition-colors ${
@@ -101,26 +105,26 @@ export default function OrderConfirmationView({
         <div className="rounded-md border border-zinc-200 bg-white p-5">
           <h2 className="text-xs font-black text-zinc-900 uppercase tracking-wider mb-5 pb-2.5 border-b border-zinc-100 flex items-center gap-2">
             <Truck className="h-4 w-4 text-zinc-900" />
-            Courier Delivery Logistics
+            {t('orderConf.courierLogistics')}
           </h2>
           <dl className="space-y-4 text-xs">
             <div>
-              <dt className="font-bold text-zinc-400 uppercase tracking-widest text-[9px] mb-1">Recipient</dt>
+              <dt className="font-bold text-zinc-400 uppercase tracking-widest text-[9px] mb-1">{t('orderConf.recipient')}</dt>
               <dd className="font-semibold text-zinc-900">{order.customerName}</dd>
             </div>
             <div>
-              <dt className="font-bold text-zinc-400 uppercase tracking-widest text-[9px] mb-1">Courier Mobile</dt>
+              <dt className="font-bold text-zinc-400 uppercase tracking-widest text-[9px] mb-1">{t('orderConf.courierMobile')}</dt>
               <dd className="font-semibold text-zinc-900">{order.phone}</dd>
             </div>
             <div>
-              <dt className="font-bold text-zinc-400 uppercase tracking-widest text-[9px] mb-1">Delivery Address</dt>
+              <dt className="font-bold text-zinc-400 uppercase tracking-widest text-[9px] mb-1">{t('orderConf.deliveryAddress')}</dt>
               <dd className="font-semibold text-zinc-900 leading-normal flex items-start gap-1">
                 <MapPin className="h-3.5 w-3.5 text-zinc-900 shrink-0 mt-0.5" />
                 {order.deliveryAddress}
               </dd>
             </div>
             <div>
-              <dt className="font-bold text-zinc-400 uppercase tracking-widest text-[9px] mb-1">Estimated Delivery</dt>
+              <dt className="font-bold text-zinc-400 uppercase tracking-widest text-[9px] mb-1">{t('orderConf.estimatedDelivery')}</dt>
               <dd className="font-bold text-zinc-900 flex items-center gap-1">
                 <Calendar className="h-3.5 w-3.5 shrink-0" />
                 {getDeliveryRange()}
@@ -133,26 +137,26 @@ export default function OrderConfirmationView({
         <div className="rounded-md border border-zinc-200 bg-white p-5">
           <h2 className="text-xs font-black text-zinc-900 uppercase tracking-wider mb-5 pb-2.5 border-b border-zinc-100 flex items-center gap-2">
             <FileSpreadsheet className="h-4 w-4 text-zinc-900" />
-            Transaction Invoice
+            {t('orderConf.transactionInvoice')}
           </h2>
           <dl className="space-y-4 text-xs mb-5">
             <div>
-              <dt className="font-bold text-zinc-400 uppercase tracking-widest text-[9px] mb-1">Invoice Reference</dt>
+              <dt className="font-bold text-zinc-400 uppercase tracking-widest text-[9px] mb-1">{t('orderConf.invoiceReference')}</dt>
               <dd className="font-mono font-bold text-zinc-950 text-sm">{order.id}</dd>
             </div>
             <div>
-              <dt className="font-bold text-zinc-400 uppercase tracking-widest text-[9px] mb-1">Payment Method</dt>
+              <dt className="font-bold text-zinc-400 uppercase tracking-widest text-[9px] mb-1">{t('orderConf.paymentMethod')}</dt>
               <dd className="font-semibold text-zinc-900 uppercase tracking-wider text-[10px]">{order.paymentMethod}</dd>
             </div>
             <div>
-              <dt className="font-bold text-zinc-400 uppercase tracking-widest text-[9px] mb-1">Status</dt>
+              <dt className="font-bold text-zinc-400 uppercase tracking-widest text-[9px] mb-1">{t('orderConf.statusLabel')}</dt>
               <dd className="inline-flex rounded-md bg-zinc-100 px-2 py-0.5 text-[9px] font-bold text-zinc-700 uppercase tracking-wide">
                 {order.status}
               </dd>
             </div>
           </dl>
           <div className="border-t border-zinc-100 pt-4 flex justify-between items-center">
-            <span className="text-[10px] font-bold text-zinc-400 uppercase tracking-wider">Total Paid</span>
+            <span className="text-[10px] font-bold text-zinc-400 uppercase tracking-wider">{t('orderConf.totalPaid')}</span>
             <span className="text-xl font-black text-zinc-950">{formatCurrency(order.totalAmount)}</span>
           </div>
         </div>
@@ -160,11 +164,11 @@ export default function OrderConfirmationView({
 
       {/* Items List */}
       <section className="rounded-md border border-zinc-200 bg-white p-5 mb-8">
-        <h3 className="text-[10px] font-bold uppercase tracking-widest text-zinc-400 mb-5">Items Purchased</h3>
+        <h3 className="text-[10px] font-bold uppercase tracking-widest text-zinc-400 mb-5">{t('orderConf.itemsPurchased')}</h3>
         <div className="divide-y divide-zinc-100">
           {order.items.map((item, idx) => (
             <div key={idx} className="flex gap-4 items-center py-3.5 first:pt-0 last:pb-0">
-              <img src={item.image} alt="" className="h-11 w-11 object-cover rounded-md border border-zinc-200 bg-zinc-50" referrerPolicy="no-referrer" />
+              <SafeImg src={item.image || FALLBACK_PRODUCT_IMAGE} fallback={FALLBACK_PRODUCT_IMAGE} alt={item.productName} className="h-11 w-11 object-cover rounded-md border border-zinc-200 bg-zinc-50" />
               <div className="flex-1 min-w-0">
                 <h4 className="text-xs font-bold text-zinc-900 truncate">{item.productName}</h4>
                 <p className="text-[10px] text-zinc-400 mt-0.5">Qty: {item.quantity} &times; {formatCurrency(item.price)}</p>
@@ -179,10 +183,10 @@ export default function OrderConfirmationView({
       <div className="flex flex-col sm:flex-row gap-3 items-center justify-center">
         <button onClick={() => setView('shop')} className="btn-primary w-full sm:w-auto justify-center">
           <ShoppingCart className="h-4 w-4" />
-          Browse More Products
+          {t('orderConf.browseMore')}
         </button>
         <button onClick={() => setView('auth')} className="btn-outline w-full sm:w-auto justify-center">
-          Track My Orders
+          {t('orderConf.trackOrders')}
         </button>
       </div>
     </div>

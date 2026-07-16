@@ -16,11 +16,13 @@ import {
   ArrowRight
 } from 'lucide-react';
 import BrandLogo from './BrandLogo';
+import { useLanguage } from '../i18n/LanguageContext';
 
 export default function Footer() {
   const [email, setEmail] = useState('');
   const [subscribed, setSubscribed] = useState(false);
   const pathname = usePathname();
+  const { t } = useLanguage();
 
   const handleSubscribe = (e: React.FormEvent) => {
     e.preventDefault();
@@ -37,32 +39,32 @@ export default function Footer() {
 
   const navGroups = [
     {
-      label: 'Navigate',
+      label: t('footer.navigate'),
       links: [
-        { name: 'Home', view: '/' },
-        { name: 'Shop', view: '/shop' },
-        { name: 'Technical Services', view: '/services' },
-        { name: 'About Company', view: '/about' },
-        { name: 'How to Shop', view: '/how-to-shop' },
+        { name: t('nav.home'), view: '/' },
+        { name: t('nav.shop'), view: '/shop' },
+        { name: t('nav.services'), view: '/services' },
+        { name: t('nav.about'), view: '/about' },
+        { name: t('footer.howToShop'), view: '/how-to-shop' },
       ]
     },
     {
-      label: 'Support',
+      label: t('footer.support'),
       links: [
-        { name: 'Contact & Support', view: '/contact' },
-        { name: 'Refunds & Returns', view: '/returns' },
-        { name: 'My Wishlist', view: '/wishlist' },
-        { name: 'My Cart', view: '/cart' },
+        { name: t('footer.contactSupport'), view: '/contact' },
+        { name: t('footer.refundsReturns'), view: '/returns' },
+        { name: t('nav.wishlist'), view: '/wishlist' },
+        { name: t('nav.cart'), view: '/cart' },
       ]
     }
   ];
 
   const services = [
-    'CCTV & Surveillance Systems',
-    'Networking & Conduit Cabling',
-    'Industrial Fire Alarm Systems',
-    'Software & Web Applications',
-    'Electrical Installation'
+    t('footer.serviceCctv'),
+    t('footer.serviceNetwork'),
+    t('footer.serviceFire'),
+    t('footer.serviceSoftware'),
+    t('footer.serviceElectrical'),
   ];
 
   return (
@@ -76,8 +78,8 @@ export default function Footer() {
         {/* Newsletter strip */}
         <div className="mb-16 rounded-xl border border-zinc-800 bg-zinc-900 p-8 lg:p-10 lg:flex lg:items-center lg:justify-between lg:gap-10 shadow-lg">
           <div className="mb-8 lg:mb-0">
-            <h3 className="text-xl font-black text-white">Subscribe to our newsletter</h3>
-            <p className="mt-2 text-sm text-zinc-400 font-medium">Restocking events, exclusive sales, and safety guides.</p>
+            <h3 className="text-xl font-black text-white">{t('footer.newsletter')}</h3>
+            <p className="mt-2 text-sm text-zinc-400 font-medium">{t('footer.newsletterDesc')}</p>
           </div>
           <form onSubmit={handleSubscribe} className="flex flex-col sm:flex-row gap-3 max-w-lg w-full">
             <input
@@ -85,14 +87,14 @@ export default function Footer() {
               required
               value={email}
               onChange={(e) => setEmail(e.target.value)}
-              placeholder="your@email.com"
+              placeholder={t('footer.emailPlaceholder')}
               className="flex-1 rounded-md bg-zinc-950 border border-zinc-700 px-5 py-3 text-sm text-white placeholder-zinc-500 focus:border-white focus:outline-none transition-colors"
             />
             <button
               type="submit"
               className="flex items-center justify-center gap-2 rounded-md bg-white px-6 py-3 text-sm font-bold text-zinc-950 hover:bg-zinc-200 transition-all shrink-0"
             >
-              {subscribed ? '✓ Done!' : <><Send className="h-4 w-4" /> Subscribe</>}
+              {subscribed ? `✓ ${t('footer.subscribed')}` : <><Send className="h-4 w-4" /> {t('footer.subscribe')}</>}
             </button>
           </form>
         </div>
@@ -106,7 +108,7 @@ export default function Footer() {
               <BrandLogo size="md" />
             </Link>
             <p className="text-sm text-zinc-400 leading-relaxed mb-8 font-medium">
-              The premier destination combining fashion, electronics, and engineering services in Kigali, Rwanda.
+              {t('footer.tagline')}
             </p>
             <div className="flex gap-3">
               {[
@@ -151,25 +153,25 @@ export default function Footer() {
 
           {/* Contact Details */}
           <div>
-            <h4 className="text-xs font-black uppercase tracking-widest text-white mb-6">Contact Info</h4>
+            <h4 className="text-xs font-black uppercase tracking-widest text-white mb-6">{t('footer.contactInfo')}</h4>
             <ul className="space-y-4">
               <li className="flex items-start gap-3 text-sm text-zinc-400 font-medium">
                 <MapPin className="h-5 w-5 text-white shrink-0 mt-0.5" />
-                <span>KN 4 Ave, Kigali City Mall, Ground Floor, Kigali, Rwanda</span>
+                <span>{t('footer.address')}</span>
               </li>
               <li className="flex items-center gap-3 text-sm text-zinc-400 font-medium">
                 <Phone className="h-5 w-5 text-white shrink-0" />
-                <span>+250 788 345 678</span>
+                <span>{t('footer.phone')}</span>
               </li>
               <li className="flex items-center gap-3 text-sm text-zinc-400 font-medium">
                 <Mail className="h-5 w-5 text-white shrink-0" />
-                <span>info@iefshop.com</span>
+                <span>{t('footer.email')}</span>
               </li>
               <li className="flex items-start gap-3 text-sm text-zinc-400 font-medium">
                 <Clock className="h-5 w-5 text-white shrink-0 mt-0.5" />
                 <div>
-                  <p>Mon–Fri: 8:00 AM – 6:00 PM</p>
-                  <p className="text-zinc-500 mt-1">Sat: 9:00 AM – 3:00 PM</p>
+                  <p>{t('footer.hoursWeekday')}</p>
+                  <p className="text-zinc-500 mt-1">{t('footer.hoursSat')}</p>
                 </div>
               </li>
             </ul>
@@ -178,7 +180,7 @@ export default function Footer() {
 
         {/* Services tags */}
         <div className="mt-16 pt-10 border-t border-zinc-800">
-          <p className="text-xs font-black uppercase tracking-widest text-zinc-500 mb-4">Technical Solutions</p>
+          <p className="text-xs font-black uppercase tracking-widest text-zinc-500 mb-4">{t('footer.technicalSolutions')}</p>
           <div className="flex flex-wrap gap-2">
             {services.map((s) => (
               <Link
@@ -194,11 +196,11 @@ export default function Footer() {
 
         {/* Bottom bar */}
         <div className="mt-12 pt-8 border-t border-zinc-800 flex flex-col md:flex-row items-center justify-between gap-6 text-xs text-zinc-500 font-semibold">
-          <p>© {new Date().getFullYear()} IE &amp; F Shop. All rights reserved. Kigali, Rwanda.</p>
+          <p>© {new Date().getFullYear()} IE &amp; F Shop. {t('footer.rights')} Kigali, Rwanda.</p>
           <div className="flex gap-6">
-            <Link href="/returns" className="hover:text-white transition-colors">Privacy Policy</Link>
-            <Link href="/returns" className="hover:text-white transition-colors">Terms of Service</Link>
-            <Link href="/returns" className="hover:text-white transition-colors">Returns &amp; Refunds</Link>
+            <Link href="/returns" className="hover:text-white transition-colors">{t('footer.privacyPolicy')}</Link>
+            <Link href="/returns" className="hover:text-white transition-colors">{t('footer.termsOfService')}</Link>
+            <Link href="/returns" className="hover:text-white transition-colors">{t('footer.returnsRefunds')}</Link>
           </div>
         </div>
 

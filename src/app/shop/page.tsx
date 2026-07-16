@@ -1,14 +1,15 @@
 "use client";
 
-import { useState } from 'react';
-import { useRouter } from 'next/navigation';
+import { useState, useEffect, Suspense } from 'react';
+import { useRouter, useSearchParams } from 'next/navigation';
 import ShopView from '../../components/ShopView';
 import ProductDetailView from '../../components/ProductDetailView';
 import { useAppContext } from '../../context/AppContext';
 import { Product } from '../../types';
 
-export default function ShopPage() {
+function ShopPageContent() {
   const router = useRouter();
+  const searchParams = useSearchParams();
   const { products, addToCart, addToWishlist, wishlist } = useAppContext();
 
   const [selectedCategory, setSelectedCategory] = useState('All');
@@ -18,14 +19,32 @@ export default function ShopPage() {
   const [selectedProduct, setSelectedProduct] = useState<Product | null>(null);
   const [currentView, setCurrentView] = useState('shop');
 
+  useEffect(() => {
+    const category = searchParams.get('category');
+    const productId = searchParams.get('product');
+
+    if (category) {
+      setSelectedCategory(decodeURIComponent(category));
+      setSelectedSubcategory('All');
+    }
+
+    if (productId) {
+      const product = products.find((p) => p.id === productId);
+      if (product) {
+        setSelectedProduct(product);
+        setCurrentView('product-detail');
+      }
+    }
+  }, [searchParams, products]);
+
   const handleSetView = (view: string) => {
     if (view === 'shop') {
       setCurrentView('shop');
       setSelectedProduct(null);
+      router.replace('/shop');
     } else if (view === 'product-detail') {
       setCurrentView('product-detail');
     } else {
-      // Navigate to other routes
       const routeMap: Record<string, string> = {
         home: '/',
         cart: '/cart',
@@ -43,6 +62,7 @@ export default function ShopPage() {
   const handleSetSelectedProduct = (product: Product) => {
     setSelectedProduct(product);
     setCurrentView('product-detail');
+    router.replace(`/shop?product=${product.id}`);
   };
 
   if (currentView === 'product-detail' && selectedProduct) {
@@ -76,5 +96,13 @@ export default function ShopPage() {
       setSelectedProduct={handleSetSelectedProduct}
       setView={handleSetView}
     />
+  );
+}
+
+export default function ShopPage() {
+  return (
+    <Suspense fallback={<div className="min-h-[50vh] flex items-center justify-center text-zinc-400">Loading...</div>}>
+      <ShopPageContent />
+    </Suspense>
   );
 }
