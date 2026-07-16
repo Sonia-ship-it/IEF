@@ -4,6 +4,7 @@
  */
 
 import React, { useState } from 'react';
+import { useLanguage } from '../i18n/LanguageContext';
 import { 
   ArrowLeft, 
   ShieldCheck, 
@@ -14,6 +15,8 @@ import {
 } from 'lucide-react';
 import { CartItem, Order, User } from '../types';
 import { formatCurrency } from '../utils/currency';
+import { getProductImage, FALLBACK_PRODUCT_IMAGE } from '../utils/image';
+import { SafeImg } from './SafeImage';
 
 interface CheckoutViewProps {
   cart: CartItem[];
@@ -34,7 +37,7 @@ export default function CheckoutView({
   onPlaceOrder,
   setView
 }: CheckoutViewProps) {
-  
+  const { t } = useLanguage();
   const [name, setName] = useState(currentUser?.name || '');
   const [email, setEmail] = useState(currentUser?.email || '');
   const [phone, setPhone] = useState(currentUser?.phone || '');
@@ -53,7 +56,7 @@ export default function CheckoutView({
   const handleSubmit = (e: React.FormEvent) => {
     e.preventDefault();
     if (!name.trim() || !email.trim() || !phone.trim() || !address.trim()) {
-      alert('Please fill out all delivery and customer information.');
+      alert(t('checkout.alert'));
       return;
     }
     onPlaceOrder({ customerName: name, customerEmail: email, deliveryAddress: address, phone, paymentMethod });
@@ -72,7 +75,7 @@ export default function CheckoutView({
         Return to Cart
       </button>
 
-      <h1 className="text-2xl font-black tracking-tight text-zinc-950 mb-8 uppercase">Secure Checkout</h1>
+      <h1 className="text-2xl font-black tracking-tight text-zinc-950 mb-8 uppercase">{t('checkout.title')}</h1>
 
       <form onSubmit={handleSubmit} className="grid grid-cols-1 lg:grid-cols-12 gap-8 items-start">
         
@@ -87,11 +90,11 @@ export default function CheckoutView({
             </h2>
             <div className="grid grid-cols-1 sm:grid-cols-2 gap-4">
               <div>
-                <label className={labelClass}>Full Name</label>
+                <label className={labelClass}>{t('checkout.fullName')}</label>
                 <input type="text" required value={name} onChange={(e) => setName(e.target.value)} placeholder="Jean Damascene" className={inputClass} />
               </div>
               <div>
-                <label className={labelClass}>Email Address</label>
+                <label className={labelClass}>{t('checkout.email')}</label>
                 <input type="email" required value={email} onChange={(e) => setEmail(e.target.value)} placeholder="damascene@domain.com" className={inputClass} />
               </div>
             </div>
@@ -101,15 +104,15 @@ export default function CheckoutView({
           <section className="rounded-md border border-zinc-200 bg-white p-5">
             <h2 className="text-xs font-black text-zinc-950 uppercase tracking-wider mb-5 flex items-center gap-2">
               <span className="flex h-6 w-6 items-center justify-center rounded-md bg-zinc-900 text-[10px] font-bold text-white">2</span>
-              Delivery Address &amp; Logistics
+              {t('checkout.deliveryLogistics')}
             </h2>
             <div className="space-y-4">
               <div>
-                <label className={labelClass}>Contact Phone (For Courier)</label>
+                <label className={labelClass}>{t('checkout.contactPhone')}</label>
                 <input type="tel" required value={phone} onChange={(e) => setPhone(e.target.value)} placeholder="+250 788 000 000" className={inputClass} />
               </div>
               <div>
-                <label className={labelClass}>Physical Address</label>
+                <label className={labelClass}>{t('checkout.physicalAddress')}</label>
                 <textarea required rows={3} value={address} onChange={(e) => setAddress(e.target.value)}
                   placeholder="KN 4 Ave, Kigali City Mall, Floor 1, Nyarugenge District, Kigali"
                   className={`${inputClass} resize-none`}
@@ -122,14 +125,14 @@ export default function CheckoutView({
           <section className="rounded-md border border-zinc-200 bg-white p-5">
             <h2 className="text-xs font-black text-zinc-950 uppercase tracking-wider mb-5 flex items-center gap-2">
               <span className="flex h-6 w-6 items-center justify-center rounded-md bg-zinc-900 text-[10px] font-bold text-white">3</span>
-              Payment Method
+              {t('checkout.paymentMethods')}
             </h2>
             
             <div className="grid grid-cols-3 gap-3 mb-5">
               {[
-                { type: 'Mobile Money', icon: Wallet, label: 'Mobile Money' },
-                { type: 'Card Payment', icon: CreditCard, label: 'Credit Card' },
-                { type: 'Cash on Delivery', icon: Coins, label: 'On Delivery' }
+                { type: 'Mobile Money', icon: Wallet, label: t('checkout.momo') },
+                { type: 'Card Payment', icon: CreditCard, label: t('checkout.creditCard') },
+                { type: 'Cash on Delivery', icon: Coins, label: t('checkout.onDelivery') }
               ].map((pm) => {
                 const Icon = pm.icon;
                 const isSelected = paymentMethod === pm.type;
@@ -162,9 +165,9 @@ export default function CheckoutView({
                   ))}
                 </div>
                 <div>
-                  <label className={labelClass}>MoMo Wallet Number</label>
+                  <label className={labelClass}>{t('checkout.momoWallet')}</label>
                   <input type="tel" required={paymentMethod === 'Mobile Money'} value={momoNumber} onChange={(e) => setMomoNumber(e.target.value)} placeholder="+250 78X XXX XXX" className={inputClass} />
-                  <p className="text-[10px] text-zinc-400 mt-1.5">A push prompt will be sent to this number to approve {formatCurrency(total)}.</p>
+                  <p className="text-[10px] text-zinc-400 mt-1.5">{t('checkout.momoPushMsg')} {formatCurrency(total)}.</p>
                 </div>
               </div>
             )}
@@ -172,16 +175,16 @@ export default function CheckoutView({
             {paymentMethod === 'Card Payment' && (
               <div className="space-y-4 rounded-md bg-zinc-50 p-4 border border-zinc-200">
                 <div>
-                  <label className={labelClass}>Card Number</label>
+                  <label className={labelClass}>{t('checkout.cardNum')}</label>
                   <input type="text" required={paymentMethod === 'Card Payment'} value={cardNumber} onChange={(e) => setCardNumber(e.target.value)} placeholder="1234 5678 9101 1121" className={inputClass} />
                 </div>
                 <div className="grid grid-cols-2 gap-4">
                   <div>
-                    <label className={labelClass}>Expiry Date</label>
+                    <label className={labelClass}>{t('checkout.cardExp')}</label>
                     <input type="text" required={paymentMethod === 'Card Payment'} value={cardExpiry} onChange={(e) => setCardExpiry(e.target.value)} placeholder="MM/YY" className={inputClass} />
                   </div>
                   <div>
-                    <label className={labelClass}>CVC / CVV</label>
+                    <label className={labelClass}>{t('checkout.cardCvc')}</label>
                     <input type="password" maxLength={3} required={paymentMethod === 'Card Payment'} value={cardCvc} onChange={(e) => setCardCvc(e.target.value)} placeholder="123" className={inputClass} />
                   </div>
                 </div>
@@ -190,9 +193,9 @@ export default function CheckoutView({
 
             {paymentMethod === 'Cash on Delivery' && (
               <div className="rounded-md bg-zinc-50 p-4 border border-zinc-200">
-                <p className="text-xs leading-relaxed text-zinc-500">
-                  Pay cash or push local mobile money to our dispatcher on site. We recommend preparing the exact amount: <strong className="text-zinc-900">{formatCurrency(total)}</strong>.
-                </p>
+                  <p className="text-xs leading-relaxed text-zinc-500">
+                    {t('checkout.cashDesc2')} <strong className="text-zinc-900">{formatCurrency(total)}</strong>.
+                  </p>
               </div>
             )}
           </section>
@@ -200,15 +203,15 @@ export default function CheckoutView({
 
         {/* Right: Order Summary */}
         <aside className="lg:col-span-5 rounded-md border border-zinc-200 bg-zinc-50 p-5 sticky top-28">
-          <h2 className="text-xs font-black text-zinc-950 uppercase tracking-wider mb-5">Invoice Breakdown</h2>
+          <h2 className="text-xs font-black text-zinc-950 uppercase tracking-wider mb-5">{t('checkout.invoiceBreakdown')}</h2>
 
           <div className="divide-y divide-zinc-200 pb-4 mb-4 max-h-56 overflow-y-auto custom-scrollbar pr-1">
             {cart.map((item) => (
               <div key={item.product.id} className="flex gap-3 py-3 first:pt-0">
-                <img src={item.product.images[0]} alt="" className="h-10 w-10 object-cover rounded-md border border-zinc-200 bg-white" referrerPolicy="no-referrer" />
+                <SafeImg src={getProductImage(item.product.images)} fallback={FALLBACK_PRODUCT_IMAGE} alt={t(`products.${item.product.id}.name`, item.product.name)} className="h-10 w-10 object-cover rounded-md border border-zinc-200 bg-white" />
                 <div className="flex-1 min-w-0">
-                  <h4 className="text-[11px] font-bold text-zinc-900 truncate">{item.product.name}</h4>
-                  <p className="text-[10px] text-zinc-400 mt-0.5">Qty: {item.quantity} &times; {formatCurrency(item.product.price)}</p>
+                  <h4 className="text-[11px] font-bold text-zinc-900 truncate">{t(`products.${item.product.id}.name`, item.product.name)}</h4>
+                  <p className="text-[10px] text-zinc-400 mt-0.5">{t('checkout.qty')}: {item.quantity} × {formatCurrency(item.product.price)}</p>
                 </div>
                 <span className="text-xs font-bold text-zinc-900">{formatCurrency(item.product.price * item.quantity)}</span>
               </div>
@@ -217,15 +220,15 @@ export default function CheckoutView({
 
           <div className="space-y-3 text-xs border-t border-zinc-200 pt-4">
             <div className="flex justify-between">
-              <span className="text-zinc-500">Subtotal</span>
+              <span className="text-zinc-500">{t('checkout.subtotal')}</span>
               <span className="font-bold text-zinc-900">{formatCurrency(subtotal)}</span>
             </div>
             <div className="flex justify-between">
-              <span className="text-zinc-500">Delivery</span>
-              <span className="font-bold text-zinc-900">{deliveryFee === 0 ? 'Free' : formatCurrency(deliveryFee)}</span>
+              <span className="text-zinc-500">{t('checkout.delivery')}</span>
+              <span className="font-bold text-zinc-900">{deliveryFee === 0 ? t('checkout.free') : formatCurrency(deliveryFee)}</span>
             </div>
             <div className="border-t border-zinc-200 pt-3 flex justify-between text-sm font-black">
-              <span className="text-zinc-950 uppercase tracking-wide">Total</span>
+              <span className="text-zinc-950 uppercase tracking-wide">{t('checkout.total')}</span>
               <span className="text-zinc-950">{formatCurrency(total)}</span>
             </div>
           </div>
@@ -233,10 +236,10 @@ export default function CheckoutView({
           <div className="mt-6">
             <button type="submit" className="w-full btn-primary justify-center py-3.5">
               <ShieldCheck className="h-4 w-4" />
-              Place Order &amp; Push Invoice
+              {t('checkout.placeAndPush')}
             </button>
             <p className="text-[9px] text-zinc-400 text-center leading-normal mt-3">
-              By placing this order, you authorize the dispatcher to coordinate your deliveries and guarantee payment clearance.
+              {t('checkout.authMsg')}
             </p>
           </div>
         </aside>

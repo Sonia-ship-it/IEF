@@ -4,6 +4,7 @@
  */
 
 import React from 'react';
+import { useLanguage } from '../i18n/LanguageContext';
 import { 
   Compass, 
   Layers, 
@@ -16,47 +17,48 @@ import {
 } from 'lucide-react';
 
 export default function HowToShopView() {
+  const { t } = useLanguage();
   const steps = [
     {
       num: '01',
-      title: 'Browse Products &amp; Categories',
-      desc: 'Explore our catalog across four primary sections: luxury clothing, premium shoes, necklaces, and smart security electronics.',
+      title: t('howtoshop.s1'),
+      desc: t('howtoshop.s1d'),
       icon: Compass
     },
     {
       num: '02',
-      title: 'Select a Product &amp; Check Details',
-      desc: 'Inspect full highweight fabrics GSM specs, precise measurements, dome or bullet lens details, and original stock availability.',
+      title: t('howtoshop.s2'),
+      desc: t('howtoshop.s2d'),
       icon: Layers
     },
     {
       num: '03',
-      title: 'Add Selected Items to Cart',
-      desc: 'Update desired quantities, save favorite luxury items in your persistent wishlist, and organize your selected items in the cart.',
+      title: t('howtoshop.s3'),
+      desc: t('howtoshop.s3d'),
       icon: ShoppingCart
     },
     {
       num: '04',
-      title: 'Proceed to Secure Checkout',
-      desc: 'Confirm your invoice summaries and click the Proceed to Checkout button to advance to customer details panels.',
+      title: t('howtoshop.s4'),
+      desc: t('howtoshop.s4d'),
       icon: CreditCard
     },
     {
       num: '05',
-      title: 'Enter Delivery Information',
-      desc: 'Provide your accurate Kigali district, building, or landmark coordinates and active courier phone numbers.',
+      title: t('howtoshop.s5'),
+      desc: t('howtoshop.s5d'),
       icon: Truck
     },
     {
       num: '06',
-      title: 'Choose Your Payment Method',
-      desc: 'Opt for instant MTN MoMo or Airtel Money pushing, secure Visa credit cards, or convenient cash settlement on doorstep delivery.',
+      title: t('howtoshop.s6'),
+      desc: t('howtoshop.s6d'),
       icon: Wallet
     },
     {
       num: '07',
-      title: 'Place Order &amp; Track Progress',
-      desc: 'Submit your request, receive your invoice number reference immediately, and monitor our real-time delivery progress bars.',
+      title: t('howtoshop.s7'),
+      desc: t('howtoshop.s7d'),
       icon: CheckCircle2
     }
   ];
@@ -66,12 +68,12 @@ export default function HowToShopView() {
       
       {/* Header */}
       <div className="text-center max-w-3xl mx-auto mb-12">
-        <span className="text-[10px] font-bold uppercase tracking-widest text-zinc-400">Knowledge Base Manual</span>
+        <span className="text-[10px] font-bold uppercase tracking-widest text-zinc-400">{t('howtoshop.subtitle')}</span>
         <h1 className="mt-3 text-3xl font-black tracking-tight text-zinc-950 sm:text-4xl">
-          How to Shop &amp; Request Services
+          {t('howtoshop.title')}
         </h1>
         <p className="mt-4 text-sm text-zinc-500 leading-relaxed">
-          Follow our transparent, step-by-step guidelines to purchase premium fashion accessories or schedule technical on-site surveys in Kigali.
+          {t('howtoshop.desc')}
         </p>
       </div>
 
@@ -105,27 +107,15 @@ export default function HowToShopView() {
       <section className="max-w-4xl mx-auto border-t border-zinc-200 pt-12">
         <h2 className="text-base font-black text-zinc-950 tracking-tight mb-8 text-center flex items-center justify-center gap-2">
           <HelpCircle className="h-5 w-5 text-zinc-900" />
-          Frequently Asked Questions
+          {t('howtoshop.faqTitle')}
         </h2>
 
         <div className="space-y-4">
           {[
-            {
-              q: 'How do I request an onsite survey for CCTV installation?',
-              a: 'Head to our Services Page, click "Request Technical Service Survey" on the CCTV card, complete your email, phone, and coordinates in the form, and submit. A technical expert will contact you to coordinate a visit.'
-            },
-            {
-              q: 'Is my Mobile Money payment secured?',
-              a: 'Absolutely. We do not store PIN codes. When you submit a MoMo checkout request, our API securely requests a direct push prompt to your mobile screen. Payment clears only after you enter your private PIN code.'
-            },
-            {
-              q: 'What is your sizing criteria for Complete Outfits?',
-              a: 'Our clothing fits true to Western premium sizing (S, M, L, XL). Exact measurements are specified in product description specs. If you are unsure, you can write details in our contact forms or visit our Kigali City Mall store.'
-            },
-            {
-              q: 'How long do technical systems installations take?',
-              a: 'Standard 4-camera CCTV monitoring setups are fully completed in 1 business day. Complex fiber optic networking cabling or industrial smoke detectors mapping takes between 2 to 5 business days.'
-            }
+            { q: t('howtoshop.q1'), a: t('howtoshop.a1') },
+            { q: t('howtoshop.q2'), a: t('howtoshop.a2') },
+            { q: t('howtoshop.q3'), a: t('howtoshop.a3') },
+            { q: t('howtoshop.q4'), a: t('howtoshop.a4') },
           ].map((faq, idx) => (
             <div key={idx} className="rounded-md border border-zinc-200 bg-zinc-50 p-5">
               <h4 className="text-xs font-bold text-zinc-900 tracking-wide mb-2">Q: {faq.q}</h4>

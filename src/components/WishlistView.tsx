@@ -12,6 +12,9 @@ import {
 } from 'lucide-react';
 import { Product } from '../types';
 import { formatCurrency } from '../utils/currency';
+import { useLanguage } from '../i18n/LanguageContext';
+import { getProductImage, FALLBACK_PRODUCT_IMAGE } from '../utils/image';
+import { SafeImg } from './SafeImage';
 
 interface WishlistViewProps {
   wishlist: Product[];
@@ -29,6 +32,8 @@ export default function WishlistView({
   setView
 }: WishlistViewProps) {
   
+  const { t } = useLanguage();
+  
   const handleProductClick = (product: Product) => {
     setSelectedProduct(product);
     setView('product-detail');
@@ -40,15 +45,15 @@ export default function WishlistView({
         <div className="rounded-md bg-zinc-50 p-6 w-fit mx-auto text-zinc-400 border border-zinc-200">
           <Heart className="h-12 w-12" />
         </div>
-        <h1 className="mt-6 text-2xl font-black tracking-tight text-zinc-950 uppercase">Your Wishlist is Empty</h1>
+        <h1 className="mt-6 text-2xl font-black tracking-tight text-zinc-950 uppercase">{t('wishlist.empty')}</h1>
         <p className="mt-2 text-xs text-zinc-500 font-medium">
-          Save garments, shoes, accessories, or smart camera products for later. Keep track of what you love!
+          {t('wishlist.emptyMsg')}
         </p>
         <button
           onClick={() => setView('shop')}
           className="mt-6 btn-primary"
         >
-          Explore Shop Catalogue
+          {t('wishlist.explore')}
           <ArrowRight className="h-4 w-4" />
         </button>
       </div>
@@ -59,7 +64,7 @@ export default function WishlistView({
     <div className="mx-auto max-w-7xl px-6 py-8 font-sans text-zinc-800 bg-white" id="wishlist-view">
       
       <h1 className="text-2xl font-black tracking-tight text-zinc-950 mb-8 uppercase">
-        Saved Wishlist Items ({wishlist.length})
+        {t('wishlist.title')} ({wishlist.length})
       </h1>
 
       <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-4 gap-5">
@@ -73,11 +78,11 @@ export default function WishlistView({
               className="aspect-square w-full overflow-hidden bg-zinc-50 relative cursor-pointer border-b border-zinc-200"
               onClick={() => handleProductClick(product)}
             >
-              <img
-                src={product.images[0]}
-                alt={product.name}
+              <SafeImg
+                src={getProductImage(product.images)}
+                fallback={FALLBACK_PRODUCT_IMAGE}
+                alt={t(`products.${product.id}.name`, product.name)}
                 className="h-full w-full object-cover object-center group-hover:scale-102 transition-transform duration-200"
-                referrerPolicy="no-referrer"
               />
               <button
                 onClick={(e) => {
@@ -95,13 +100,13 @@ export default function WishlistView({
             <div className="flex flex-1 flex-col p-4 justify-between">
               <div>
                 <span className="text-[10px] font-bold text-zinc-400 uppercase tracking-widest block mb-1">
-                  {product.subcategory}
+                  {t(`cat.${product.subcategory}`, product.subcategory)}
                 </span>
                 <h3 
                   className="text-xs font-bold text-zinc-900 line-clamp-2 hover:text-zinc-600 cursor-pointer min-h-[36px]"
                   onClick={() => handleProductClick(product)}
                 >
-                  {product.name}
+                  {t(`products.${product.id}.name`, product.name)}
                 </h3>
               </div>
 
@@ -110,7 +115,7 @@ export default function WishlistView({
                   <span className="text-sm font-black text-zinc-950">
                     {formatCurrency(product.price)}
                   </span>
-                  <span className="text-[10px] text-zinc-400 font-semibold">{product.stock > 0 ? 'In Stock' : 'Out of Stock'}</span>
+                  <span className="text-[10px] text-zinc-400 font-semibold">{product.stock > 0 ? t('common.inStock') : t('common.outOfStock')}</span>
                 </div>
 
                 {product.stock > 0 ? (
@@ -119,14 +124,14 @@ export default function WishlistView({
                     className="w-full btn-primary justify-center py-2.5 text-xs"
                   >
                     <ShoppingCart className="h-4 w-4" />
-                    Move to Cart Bag
+                    {t('common.moveToCart')}
                   </button>
                 ) : (
                   <button
                     disabled
                     className="w-full rounded-md bg-zinc-100 py-2.5 text-xs font-bold text-zinc-400 cursor-not-allowed border border-zinc-200"
                   >
-                    Temporarily Unavailable
+                    {t('common.unavailable')}
                   </button>
                 )}
               </div>

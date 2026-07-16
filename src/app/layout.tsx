@@ -2,11 +2,13 @@ import React from "react";
 import type { Metadata } from "next";
 import { Urbanist, JetBrains_Mono } from "next/font/google";
 import { AppProvider } from "../context/AppContext";
+import { LanguageProvider } from "../i18n/LanguageContext";
 import "./globals.css";
 
 // Components
 import Navbar from "../components/Navbar";
 import Footer from "../components/Footer";
+import { Toaster } from "react-hot-toast";
 
 const urbanist = Urbanist({
   subsets: ["latin"],
@@ -35,11 +37,14 @@ export default function RootLayout({
   return (
     <html lang="en" className={`${urbanist.variable} ${jetbrainsMono.variable}`}>
       <body className="min-h-screen flex flex-col bg-white font-sans antialiased text-zinc-800">
-        <AppProvider>
-          <Navbar />
-          <main className="flex-1">{children}</main>
-          <Footer />
-        </AppProvider>
+        <LanguageProvider>
+          <AppProvider>
+            <Navbar />
+            <main className="flex-1">{children}</main>
+            <Footer />
+            <Toaster position="top-right" />
+          </AppProvider>
+        </LanguageProvider>
       </body>
     </html>
   );

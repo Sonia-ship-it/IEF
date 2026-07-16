@@ -20,6 +20,8 @@ import {
 } from 'lucide-react';
 import BrandLogo from './BrandLogo';
 import { useAppContext } from '../context/AppContext';
+import { useLanguage, Language } from '../i18n/LanguageContext';
+
 
 export default function Navbar() {
   const [mobileMenuOpen, setMobileMenuOpen] = useState(false);
@@ -28,6 +30,8 @@ export default function Navbar() {
   
   const pathname = usePathname();
   const { cart, wishlist, currentUser, logout } = useAppContext();
+  const { language, setLanguage, t } = useLanguage();
+  const [langDropdownOpen, setLangDropdownOpen] = useState(false);
   
   const cartCount = cart.reduce((total, item) => total + item.quantity, 0);
   const wishlistCount = wishlist.length;
@@ -38,18 +42,18 @@ export default function Navbar() {
     return () => window.removeEventListener('scroll', onScroll);
   }, []);
 
-  // Close dropdowns on path change
   useEffect(() => {
     setMobileMenuOpen(false);
     setUserDropdownOpen(false);
+    setLangDropdownOpen(false);
   }, [pathname]);
 
   const navItems = [
-    { label: 'Home', href: '/', icon: Compass },
-    { label: 'Shop', href: '/shop', icon: Sparkles },
-    { label: 'Services', href: '/services', icon: Briefcase },
-    { label: 'About', href: '/about', icon: HelpCircle },
-    { label: 'Contact', href: '/contact', icon: Mail },
+    { label: t('nav.home'), href: '/', icon: Compass },
+    { label: t('nav.shop'), href: '/shop', icon: Sparkles },
+    { label: t('nav.services'), href: '/services', icon: Briefcase },
+    { label: t('nav.about'), href: '/about', icon: HelpCircle },
+    { label: t('nav.contact'), href: '/contact', icon: Mail },
   ];
 
   if (pathname?.startsWith('/admin')) {
@@ -101,41 +105,87 @@ export default function Navbar() {
           {/* Right Action Area */}
           <div className="flex items-center gap-2 ml-auto">
             
-            {/* Wishlist */}
-            <Link
-              href="/wishlist"
-              className={`relative flex items-center justify-center w-10 h-10 rounded-full transition-all duration-200 ${
-                pathname === '/wishlist'
-                  ? 'text-zinc-900 bg-zinc-100'
-                  : 'text-zinc-400 hover:text-zinc-900 hover:bg-zinc-100'
-              }`}
-              aria-label="Wishlist"
-            >
-              <Heart className="h-5 w-5" />
-              {wishlistCount > 0 && (
-                <span className="absolute -top-0.5 -right-0.5 flex h-4.5 w-4.5 items-center justify-center rounded-full bg-zinc-900 text-[9px] font-bold text-white border-2 border-white">
-                  {wishlistCount}
-                </span>
-              )}
-            </Link>
+            {/* Conditional Wishlist & Cart for Non-Admins */}
+            {currentUser?.role !== 'admin' && (
+              <>
+                {/* Wishlist */}
+                <Link
+                  href="/wishlist"
+                  className={`relative flex items-center justify-center w-10 h-10 rounded-full transition-all duration-200 ${
+                    pathname === '/wishlist'
+                      ? 'text-zinc-900 bg-zinc-100'
+                      : 'text-zinc-400 hover:text-zinc-900 hover:bg-zinc-100'
+                  }`}
+                  aria-label="Wishlist"
+                >
+                  <Heart className="h-5 w-5" />
+                  {wishlistCount > 0 && (
+                    <span className="absolute -top-0.5 -right-0.5 flex h-4.5 w-4.5 items-center justify-center rounded-full bg-zinc-900 text-[9px] font-bold text-white border-2 border-white">
+                      {wishlistCount}
+                    </span>
+                  )}
+                </Link>
 
-            {/* Cart */}
-            <Link
-              href="/cart"
-              className={`relative flex items-center justify-center w-10 h-10 rounded-full transition-all duration-200 ${
-                pathname === '/cart'
-                  ? 'text-zinc-900 bg-zinc-100'
-                  : 'text-zinc-400 hover:text-zinc-900 hover:bg-zinc-100'
-              }`}
-              aria-label="Cart"
-            >
-              <ShoppingCart className="h-5 w-5" />
-              {cartCount > 0 && (
-                <span className="absolute -top-0.5 -right-0.5 flex h-4.5 w-4.5 items-center justify-center rounded-full bg-zinc-900 text-[9px] font-bold text-white border-2 border-white">
-                  {cartCount}
-                </span>
+                {/* Cart */}
+                <Link
+                  href="/cart"
+                  className={`relative flex items-center justify-center w-10 h-10 rounded-full transition-all duration-200 ${
+                    pathname === '/cart'
+                      ? 'text-zinc-900 bg-zinc-100'
+                      : 'text-zinc-400 hover:text-zinc-900 hover:bg-zinc-100'
+                  }`}
+                  aria-label="Cart"
+                >
+                  <ShoppingCart className="h-5 w-5" />
+                  {cartCount > 0 && (
+                    <span className="absolute -top-0.5 -right-0.5 flex h-4.5 w-4.5 items-center justify-center rounded-full bg-zinc-900 text-[9px] font-bold text-white border-2 border-white">
+                      {cartCount}
+                    </span>
+                  )}
+                </Link>
+              </>
+            )}
+
+            {/* Language Selector */}
+            <div className="relative hidden sm:block">
+              <button
+                onClick={() => setLangDropdownOpen(!langDropdownOpen)}
+                className="flex items-center justify-center w-10 h-10 rounded-full text-zinc-400 hover:text-zinc-900 hover:bg-zinc-100 transition-all duration-200"
+                aria-label="Language"
+              >
+                <img
+                  src={language === 'en' ? 'https://flagcdn.com/w40/gb.png' : language === 'fr' ? 'https://flagcdn.com/w40/fr.png' : 'https://flagcdn.com/w40/rw.png'}
+                  alt={language === 'en' ? 'English' : language === 'fr' ? 'Français' : 'Kinyarwanda'}
+                  className="w-6 h-4 object-cover rounded-sm shadow-sm"
+                />
+              </button>
+              {langDropdownOpen && (
+                <>
+                  <div className="fixed inset-0 z-10" onClick={() => setLangDropdownOpen(false)} />
+                  <div className="absolute right-0 mt-3 w-36 z-20 origin-top-right rounded-md border border-zinc-200 bg-white p-1.5 shadow-xl animate-slide-down">
+                    {(['rw', 'en', 'fr'] as Language[]).map((l) => (
+                      <button
+                        key={l}
+                        onClick={() => {
+                          setLanguage(l);
+                          setLangDropdownOpen(false);
+                        }}
+                        className={`w-full text-left px-3 py-2 text-sm rounded-md transition-colors flex items-center gap-2 ${
+                          language === l ? 'bg-zinc-100 font-bold text-zinc-900' : 'text-zinc-600 hover:bg-zinc-50 hover:text-zinc-900'
+                        }`}
+                      >
+                        <img
+                          src={l === 'en' ? 'https://flagcdn.com/w40/gb.png' : l === 'fr' ? 'https://flagcdn.com/w40/fr.png' : 'https://flagcdn.com/w40/rw.png'}
+                          alt={l === 'en' ? 'English' : l === 'fr' ? 'Français' : 'Kinyarwanda'}
+                          className="w-5 h-3.5 object-cover rounded-sm shadow-sm flex-shrink-0"
+                        />
+                        {l === 'en' ? 'English' : l === 'fr' ? 'Français' : 'Kinyarwanda'}
+                      </button>
+                    ))}
+                  </div>
+                </>
               )}
-            </Link>
+            </div>
 
             {/* Divider */}
             <span className="w-px h-6 bg-zinc-200 mx-1" />
@@ -163,7 +213,7 @@ export default function Navbar() {
                           className="flex w-full items-center gap-2.5 rounded-md px-3.5 py-2.5 text-sm font-semibold text-zinc-700 hover:bg-zinc-100 transition-colors"
                         >
                           <UserIcon className="h-4 w-4 text-zinc-500" />
-                          Profile &amp; Orders
+                          {t('nav.profileOrders')}
                         </Link>
                         {currentUser.role === 'admin' && (
                           <Link
@@ -171,7 +221,7 @@ export default function Navbar() {
                             className="flex w-full items-center gap-2.5 rounded-md px-3.5 py-2.5 text-sm font-semibold text-zinc-700 hover:bg-zinc-100 transition-colors"
                           >
                             <LayoutDashboard className="h-4 w-4 text-zinc-500" />
-                            Admin Dashboard
+                            {t('nav.adminDashboard')}
                           </Link>
                         )}
                         <div className="border-t border-zinc-100 mt-1.5 pt-1.5">
@@ -180,7 +230,7 @@ export default function Navbar() {
                             className="flex w-full items-center gap-2.5 rounded-md px-3.5 py-2.5 text-sm font-semibold text-red-600 hover:bg-red-50 transition-colors"
                           >
                             <LogOut className="h-4 w-4" />
-                            Sign Out
+                            {t('nav.signOut')}
                           </button>
                         </div>
                       </div>
@@ -192,7 +242,7 @@ export default function Navbar() {
                   href="/auth"
                   className="inline-flex rounded-full bg-zinc-900 px-5 py-2.5 text-sm font-bold tracking-wide text-white hover:bg-zinc-700 transition-all duration-200 hover:shadow-md"
                 >
-                  Get Started
+                  {t('nav.getStarted')}
                 </Link>
               )}
             </div>
@@ -238,7 +288,7 @@ export default function Navbar() {
                   href="/auth"
                   className="w-full rounded-md bg-zinc-900 py-3 text-sm font-bold text-white text-center hover:bg-zinc-700 transition-colors"
                 >
-                  Get Started
+                  {t('nav.getStarted')}
                 </Link>
               </div>
             )}
